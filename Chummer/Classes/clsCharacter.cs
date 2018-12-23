@@ -2863,6 +2863,11 @@ namespace Chummer
                 _lstSpirits.Add(objSpirit);
             }
 
+            if (!_lstSpirits.Any(s => s.Fettered) && Improvements.Any(imp => imp.ImproveSource == Improvement.ImprovementSource.SpiritFettering))
+            {
+                // If we don't have any Fettered spirits, make sure that we 
+                ImprovementManager.RemoveImprovements(this, Improvement.ImprovementSource.SpiritFettering);
+            }
             Timekeeper.Finish("load_char_spirits");
             Timekeeper.Start("load_char_complex");
             frmLoadingForm?.PerformStep(LanguageManager.GetString("Label_ComplexForms"));
@@ -7166,9 +7171,11 @@ namespace Chummer
         /// Get a CharacterAttribute by its name.
         /// </summary>
         /// <param name="strAttribute">CharacterAttribute name to retrieve.</param>
-        public CharacterAttrib GetAttribute(string strAttribute)
+        /// <param name="blnExplicit">Whether to force looking for a specific attribute name.
+        /// Mostly expected to be used for gutting Mystic Adept powerpoints.</param>
+        public CharacterAttrib GetAttribute(string strAttribute, bool blnExplicit = false)
         {
-            if (strAttribute == "MAGAdept" && (!IsMysticAdept || !Options.MysAdeptSecondMAGAttribute))
+            if (strAttribute == "MAGAdept" && (!IsMysticAdept || !Options.MysAdeptSecondMAGAttribute) && !blnExplicit)
                 strAttribute = "MAG";
             return AttributeSection.GetAttributeByName(strAttribute);
         }
@@ -15552,7 +15559,7 @@ namespace Chummer
             Timekeeper.Start("load_char_complex");
 
             // Compex Forms/Technomancer Programs.
-            string strComplexFormsLine = lstTextStatBlockLines.FirstOrDefault(x => x.StartsWith("Complex Forms:"));
+            string strComplexFormsLine = lstTextStatBlockLines?.FirstOrDefault(x => x.StartsWith("Complex Forms:"));
             if (!string.IsNullOrEmpty(strComplexFormsLine))
             {
                 XmlDocument xmlComplexFormsDocument = XmlManager.Load("complexforms.xml");
