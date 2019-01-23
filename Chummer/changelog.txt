@@ -2,10 +2,24 @@ Future Build 205
 
 Application Changes:
 - Added a new improvement type - actiondicepool - to support specific Actions receiving dicepool bonuses. Currently only Threading is supported by this.
+- Fixed behaviour of Exotic weapons to prevent them from from using the first exotic skill found.
+- Exposed the selection of AI programs to the main RequirementsMet method. Prevents issues with programs not being translated, offends me slightly less. Fixes #3350
+- Fixed processing of FixedValues on the Select Gear window.
+- Refactored string processing method for Gear Ratings into a single method. Allows MinRating, MaxRating, MatrixAttributes and TotalBonusMatrixBoxes (for LivingPersona only) to use complex strings such as {Parent DeviceRating}. Fixes #3360
+- Foxed some behaviour in creation of packs to properly allow creatio nof lifestyles.
+- Fixed behaviour of child Cyberware with the AddToParentESS flag not properly adding their essence cost to the parent.
+- Fixed issues with the subsystem and gear limitations for Cyberware and Gear that prevented categories from loading properly.
 
 Data Changes:
 - Fixed incorrect underbarrel weapon name for the Nissan Optimum II that caused a crash. Fixes part of #3344
 - Fixed incorrect bonus for the Delphi Paragon to apply to Threading actions instead of Compiling.
+- Set the ammo type for the FN-AAL to Gyrojet. Possibly not correct, as there's no proper RAW on what ammo the weapon is supposed to fire. 
+- Fixed incorrect price for the Reakt geneware. 
+- Allowed the Peak-Discharge energy packs to be added as accessories to weapons with External Source ammo types. Fixes #3361.
+- Fixed incorrect specialisation requirement for the Death Dealer quality.
+- Fixed missing nuyen bp costs for the ShadowNET starter pack and Runnerhub Basic Gear Pack. Fixes #3368
+- The Auto Injector Expension and Killswitch are now properly addable to the Autoinjector as child objects. They've been renamed to Expanded Reservoir and Killswitch, respectively. Fixes #3365
+- Fixed issues with the Infected Optional Power qualities that prevented them being taken in create mode. Closes #3234
 
 Build 204
 
