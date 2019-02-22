@@ -59,10 +59,8 @@ namespace Chummer
         /// <param name="strForceValueChoice1">Name/Text for Choice 1.</param>
         /// <param name="strForceValueChoice2">Name/Text for Choice 2.</param>
         /// <param name="strForceValue">Force a value to be selected for the Mentor Spirit.</param>
-        /// <param name="blnMentorMask">Whether the Mentor's Mask is enabled.</param>
-        public void Create(XmlNode xmlMentor, Improvement.ImprovementType eMentorType, string strForceValue = "", string strForceValueChoice1 = "", string strForceValueChoice2 = "", bool blnMentorMask = false)
+        public void Create(XmlNode xmlMentor, Improvement.ImprovementType eMentorType, string strForceValue = "", string strForceValueChoice1 = "", string strForceValueChoice2 = "")
         {
-            _blnMentorMask = blnMentorMask;
             _eMentorType = eMentorType;
             _objCachedMyXmlNode = null;
             xmlMentor.TryGetStringFieldQuickly("name", ref _strName);
@@ -146,12 +144,6 @@ namespace Chummer
             {
                 _strExtra = strForceValueChoice2;
             }
-            if (_blnMentorMask)
-            {
-                ImprovementManager.CreateImprovement(_objCharacter, string.Empty, Improvement.ImprovementSource.MentorSpirit, _guiID.ToString("D"), Improvement.ImprovementType.AdeptPowerPoints, string.Empty, 1);
-                ImprovementManager.CreateImprovement(_objCharacter, string.Empty, Improvement.ImprovementSource.MentorSpirit, _guiID.ToString("D"), Improvement.ImprovementType.DrainValue, string.Empty, -1);
-                ImprovementManager.Commit(_objCharacter);
-            }
 
             /*
             if (string.IsNullOrEmpty(_strNotes))
@@ -165,27 +157,8 @@ namespace Chummer
         }
 
         private SourceString _objCachedSourceDetail;
-        public SourceString SourceDetail
-        {
-            get
-            {
-                if (_objCachedSourceDetail == null)
-                {
-                    string strSource = Source;
-                    string strPage = Page(GlobalOptions.Language);
-                    if (!string.IsNullOrEmpty(strSource) && !string.IsNullOrEmpty(strPage))
-                    {
-                        _objCachedSourceDetail = new SourceString(strSource, strPage, GlobalOptions.Language);
-                    }
-                    else
-                    {
-                        Utils.BreakIfDebug();
-                    }
-                }
-
-                return _objCachedSourceDetail;
-            }
-        }
+        public SourceString SourceDetail => _objCachedSourceDetail ?? (_objCachedSourceDetail =
+                                                new SourceString(Source, Page(GlobalOptions.Language), GlobalOptions.Language));
 
         /// <summary>
         /// Save the object's XML to the XmlWriter.

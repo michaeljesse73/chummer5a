@@ -34,7 +34,7 @@ namespace Chummer.Backend.Equipment
     /// Weapon Accessory.
     /// </summary>
     [DebuggerDisplay("{DisplayName(GlobalOptions.DefaultLanguage)}")]
-    public class WeaponAccessory : IHasInternalId, IHasName, IHasXmlNode, IHasNotes, ICanSell, ICanEquip, IHasSource, IHasRating, ICanSort, IHasWirelessBonus
+    public class WeaponAccessory : IHasInternalId, IHasName, IHasXmlNode, IHasNotes, ICanSell, ICanEquip, IHasSource, IHasRating, ICanSort, IHasWirelessBonus, IHasStolenProperty
 	{
         private Guid _guiID;
         private readonly Character _objCharacter;
@@ -80,6 +80,7 @@ namespace Chummer.Backend.Equipment
         private int _intSortOrder;
         private bool _blnWirelessOn = false;
         private XmlNode _nodWirelessBonus;
+	    private bool _blnStolen;
 
         #region Constructor, Create, Save, Load, and Print Methods
         public WeaponAccessory(Character objCharacter)
@@ -230,24 +231,8 @@ namespace Chummer.Backend.Equipment
         }
 
         private SourceString _objCachedSourceDetail;
-        public SourceString SourceDetail
-        {
-            get
-            {
-                if (_objCachedSourceDetail == null)
-                {
-                    string strSource = Source;
-                    string strPage = Page(GlobalOptions.Language);
-                    if (string.IsNullOrEmpty(strSource) || string.IsNullOrEmpty(strPage))
-                    {
-                        Utils.BreakIfDebug();
-                    }
-                    _objCachedSourceDetail = new SourceString(strSource, strPage, GlobalOptions.Language);
-                }
-
-                return _objCachedSourceDetail;
-            }
-        }
+	    public SourceString SourceDetail => _objCachedSourceDetail ?? (_objCachedSourceDetail =
+	                                            new SourceString(Source, Page(GlobalOptions.Language), GlobalOptions.Language));
 
         /// <summary>
         /// Save the object's XML to the XmlWriter.
@@ -308,6 +293,7 @@ namespace Chummer.Backend.Equipment
                 objWriter.WriteRaw(_nodWirelessBonus.OuterXml);
             else
                 objWriter.WriteElementString("wirelessbonus", string.Empty);
+            objWriter.WriteElementString("stolen", _blnStolen.ToString());
             objWriter.WriteElementString("sortorder", _intSortOrder.ToString());
             objWriter.WriteEndElement();
 
@@ -390,7 +376,7 @@ namespace Chummer.Backend.Equipment
             objNode.TryGetStringFieldQuickly("extra", ref _strExtra);
             objNode.TryGetInt32FieldQuickly("ammobonus", ref _intAmmoBonus);
             objNode.TryGetInt32FieldQuickly("sortorder", ref _intSortOrder);
-
+            objNode.TryGetBoolFieldQuickly("stolen", ref _blnStolen);
             if (blnCopy && !Equipped)
             {
                 _blnEquipped = true;
@@ -917,6 +903,24 @@ namespace Chummer.Backend.Equipment
             }
         }
 
+	    /// <summary>
+	    /// Total cost of the Weapon Accessory.
+	    /// </summary>
+	    public decimal StolenTotalCost
+	    {
+	        get
+	        {
+	            decimal decReturn = 0;
+                if (Stolen)
+	                decReturn = OwnCost;
+
+	            // Add in the cost of any Gear the Weapon Accessory has attached to it.
+	            decReturn += Gear.Sum(g => g.StolenTotalCost);
+
+	            return decReturn;
+	        }
+	    }
+
         /// <summary>
         /// The cost of just the Weapon Accessory itself.
         /// </summary>
@@ -1071,6 +1075,15 @@ namespace Chummer.Backend.Equipment
                 _blnWirelessOn = value;
             }
         }
+
+        /// <summary>
+        /// Is the object stolen via the Stolen Gear quality?
+        /// </summary>
+	    public bool Stolen
+	    {
+	        get => _blnStolen;
+	        set => _blnStolen = value;
+	    }
         #endregion
 
         #region Methods

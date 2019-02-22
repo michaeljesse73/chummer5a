@@ -26,6 +26,7 @@ namespace ChummerHub.Client.Model
                 {
                     Id = Guid.NewGuid(),
                     Tags = new List<Tag>(),
+                    Visibility = new SINnerVisibility()
                 };
             }
             else
@@ -51,7 +52,7 @@ namespace ChummerHub.Client.Model
                 MySINnerFile.SiNnerMetaData.Visibility =
                     JsonConvert.DeserializeObject<SINnerVisibility>(Properties.Settings.Default.SINnerVisibility);
 
-            if(MySINnerFile.SiNnerMetaData.Visibility.Id == null)
+            if(MySINnerFile.SiNnerMetaData.Visibility?.Id == null)
                 MySINnerFile.SiNnerMetaData.Visibility.Id = Guid.NewGuid();
 
             var cache = new frmCharacterRoster.CharacterCache(character.FileName);
@@ -241,7 +242,7 @@ namespace ChummerHub.Client.Model
         {
             this.PopulateTags();
             this.PrepareModel();
-            Utils.PostSINnerAsync(this).ContinueWith((posttask) =>
+            ChummerHub.Client.Backend.Utils.PostSINnerAsync(this).ContinueWith((posttask) =>
             {
                 if(posttask.Status != TaskStatus.RanToCompletion)
                 {
@@ -276,7 +277,7 @@ namespace ChummerHub.Client.Model
                     throw;
                 }
                 System.Diagnostics.Trace.TraceInformation("Character " + this.MyCharacter.Alias + " posted with ID " + this.MySINnerFile.Id);
-                Utils.UploadChummerFileAsync(this).ContinueWith((uploadtask) =>
+                ChummerHub.Client.Backend.Utils.UploadChummerFileAsync(this).ContinueWith((uploadtask) =>
                 {
                     if(uploadtask.Status != TaskStatus.RanToCompletion)
                     {

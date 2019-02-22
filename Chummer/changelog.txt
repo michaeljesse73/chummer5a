@@ -12,6 +12,24 @@ Application Changes:
 - Capped cost multipliers for lifestyles to -0%. 
 - Added the 'lifestyle' attribute to the lifestylecost and basiclifestylecost improvement types. This supports limiting the bonus to a specific Lifestyle type, such as Low or Squatter. 
 - ValueOf has been altered slightly to allow for selecting objects that are either of a given ImprovedName, or don't have one, in support of the above changes. Defaults to existing behaviour.
+- Implemented a basic upgrade mechanism in career mode for cyberware, accessed through a submenu of the Delete Cyberware button.
+- Added code to the SelectQuality form to show karma discounts if the quality qualifies for it.
+- Fixed a crash when loading plugins, if plugins cannot be found. 
+- Altered the Mentor Spirit selection window to hide list choices that can't be taken due to Magician or Adept requirements.
+- Better check for open files when trying to restart the application after updating.
+- Orphaned improvement checks are now made on every character load. This is still a hackish method to get around the issue with Qi Foci that affect Improved Ability (Skill) causing orphaned improvements, but it's generally a healthy attitude to take anyway. In order to prevent character corruption without user acceptance, it will also prompt if you want to abort loading the character until you've taken a backup.
+- Made additions to the nuyenamt improvement to allow specifying specific conditions for which the nuyen is used. This in turn supports the Stolen quality of Equipment objects, allowing the Stolen nuyen to be spent exclusively on these items without affecting the overall nuyen budget of the character.
+- Fixed issues with the refresh and removal of Locations.
+- Added a Save As Created option to the File window of characters in Create mode; this does not require that the Mark as Created checkbox be checked on the Character Info tab.
+- Fixed an issue with the process of re-purchasing gear that is permitted to have zero quantity, such as ammunition.
+- Minor change in functionalty of the UnarmedImprovementsApplyToWeapons improvement type that now permits UnarmedReach improvements to affect weapons that use the Unarmed Combat skill. 
+- Improved functionality of gameplayoptions to decouple the link between a character's starting karma and their quality limit. Closes #3436
+- Implemented a hackish workaround for disabled tooltip controls on attribute and skill controls. Should fix #3414, most likely needs further work.
+- Fixed behaviour of skill controls to properly refresh their rating when selecting a custom attribute for tests.
+- Fixed a cost calculation for built-in weapon mounts.
+- Fixed behaviour of the Shapeshifter attribute in career mode incorrectly presenting the wrong way around. Closes #3343
+- Fixed an issue that meant restarting Chummer with multiple character files open would open the same file multiple times. Closes #3298
+- Removed the hard-coded Mentor's Mask improvement and replaced it with a 0-point quality. Closes #3449
 
 Data Changes:
 - Fixed incorrect underbarrel weapon name for the Nissan Optimum II that caused a crash. Fixes part of #3344
@@ -24,6 +42,23 @@ Data Changes:
 - The Auto Injector Expension and Killswitch are now properly addable to the Autoinjector as child objects. They've been renamed to Expanded Reservoir and Killswitch, respectively. Fixes #3365
 - Fixed issues with the Infected Optional Power qualities that prevented them being taken in create mode. Closes #3234
 - Implemented the lifestyle discount for the Community Connection quality. Closes #3372
+- Added a knowledge skill prompt for Zoology.
+- Allowed the Aware quality to permit taking Mentor Spirits.
+- The In Debt quality now reduces the karma that can be spent on nuyen, representing that the karma 'gained' through this quality has been spent on the increased nuyen, per RAW.
+- Fixed a crash when adding the Rockblood Signature Armored Shirt.
+- Fixed incorrect cost for the Fuchi Cyber-N.
+- Gameplayoptions entries can now specify qualitylimit; this sets the maximum amount of positive and negative karma that can be spent on qualities. If not specified, it will revert to using the karma value. 
+- Fixed incorrect Ammo strings on the Walther Secura Superkompakt, HK Urban Striker and HK DMR 11D.
+- Fixed incorrect AP value on the Trollbow's melee option. 
+- Altered the Regeneration critter power to permit Deltaware bioware.
+- Altered the Hand Razors and Hand Blade cyberwares to be limited by the number of arms a character has and be limited to being installed into things with fingers. Included a customdata file to remove this requirement.
+- Changed incorrect CHA defaults for the Xenosapient AI metavariant.
+
+New Strings:
+- Message_OrphanedImprovements
+- MessageTitle_OrphanedImprovements
+- Checkbox_Stolen
+- MenuFileSaveAsCreated
 
 Build 204
 

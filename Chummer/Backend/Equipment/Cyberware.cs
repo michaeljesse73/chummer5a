@@ -36,7 +36,7 @@ namespace Chummer.Backend.Equipment
     /// </summary>
     [HubClassTag("SourceID", true, "Name", "Extra")]
     [DebuggerDisplay("{DisplayName(GlobalOptions.DefaultLanguage)}")]
-    public class Cyberware : IHasChildren<Cyberware>, IHasGear, IHasName, IHasInternalId, IHasXmlNode, IHasMatrixAttributes, IHasNotes, ICanSell, IHasRating, IHasSource, ICanSort
+    public class Cyberware : IHasChildren<Cyberware>, IHasGear, IHasName, IHasInternalId, IHasXmlNode, IHasMatrixAttributes, IHasNotes, ICanSell, IHasRating, IHasSource, ICanSort, IHasStolenProperty
     {
         private Guid _guiSourceID = Guid.Empty;
         private Guid _guiID;
@@ -59,6 +59,7 @@ namespace Chummer.Backend.Equipment
         private string _strMaxRating = string.Empty;
         private string _strAllowSubsystems = string.Empty;
         private bool _blnSuite;
+        private bool _blnStolen;
         private string _strLocation = string.Empty;
         private string _strExtra = string.Empty;
         private Guid _guiWeaponID = Guid.Empty;
@@ -795,6 +796,7 @@ namespace Chummer.Backend.Equipment
             objWriter.WriteElementString("location", _strLocation);
             objWriter.WriteElementString("extra", _strExtra);
             objWriter.WriteElementString("suite", _blnSuite.ToString());
+            objWriter.WriteElementString("stolen", _blnStolen.ToString());
             objWriter.WriteElementString("essdiscount", _intEssenceDiscount.ToString(GlobalOptions.InvariantCultureInfo));
             objWriter.WriteElementString("extraessadditivemultiplier", _decExtraESSAdditiveMultiplier.ToString(GlobalOptions.InvariantCultureInfo));
             objWriter.WriteElementString("extraessmultiplicativemultiplier", _decExtraESSMultiplicativeMultiplier.ToString(GlobalOptions.InvariantCultureInfo));
@@ -824,19 +826,27 @@ namespace Chummer.Backend.Equipment
                 objWriter.WriteElementString("weaponguid", _guiWeaponID.ToString("D"));
             if (_guiVehicleID != Guid.Empty)
                 objWriter.WriteElementString("vehicleguid", _guiVehicleID.ToString("D"));
+            #region PairInclude
             objWriter.WriteStartElement("pairinclude");
             foreach (string strName in _lstIncludeInPairBonus)
                 objWriter.WriteElementString("name", strName);
+            objWriter.WriteEndElement();
+            #endregion
+            #region WirelessPairInclude
             objWriter.WriteStartElement("wirelesspairinclude");
             foreach (string strName in _lstIncludeInWirelessPairBonus)
                 objWriter.WriteElementString("name", strName);
             objWriter.WriteEndElement();
+            #endregion
+            #region Children
             objWriter.WriteStartElement("children");
             foreach (Cyberware objChild in _lstChildren)
             {
                 objChild.Save(objWriter);
             }
             objWriter.WriteEndElement();
+            #endregion
+            #region Gear
             if (_lstGear.Count > 0)
             {
                 objWriter.WriteStartElement("gears");
@@ -846,6 +856,7 @@ namespace Chummer.Backend.Equipment
                 }
                 objWriter.WriteEndElement();
             }
+            #endregion
             objWriter.WriteElementString("notes", _strNotes);
             objWriter.WriteElementString("discountedcost", _blnDiscountCost.ToString());
             objWriter.WriteElementString("addtoparentess", _blnAddToParentESS.ToString());
@@ -952,6 +963,7 @@ namespace Chummer.Backend.Equipment
                 _strLocation = string.Empty;
             }
             objNode.TryGetBoolFieldQuickly("suite", ref _blnSuite);
+            objNode.TryGetBoolFieldQuickly("stolen", ref _blnStolen);
             objNode.TryGetInt32FieldQuickly("essdiscount", ref _intEssenceDiscount);
             objNode.TryGetDecFieldQuickly("extraessadditivemultiplier", ref _decExtraESSAdditiveMultiplier);
             objNode.TryGetDecFieldQuickly("extraessmultiplicativemultiplier", ref _decExtraESSMultiplicativeMultiplier);
@@ -1677,27 +1689,9 @@ namespace Chummer.Backend.Equipment
         }
 
         private SourceString _objCachedSourceDetail;
-        public SourceString SourceDetail
-        {
-            get
-            {
-                if (_objCachedSourceDetail == null)
-                {
-                    string strSource = Source;
-                    string strPage = Page(GlobalOptions.Language);
-                    if (!string.IsNullOrEmpty(strSource) && !string.IsNullOrEmpty(strPage))
-                    {
-                        _objCachedSourceDetail = new SourceString(strSource, strPage, GlobalOptions.Language);
-                    }
-                    else
-                    {
-                        Utils.BreakIfDebug();
-                    }
-                }
+        public SourceString SourceDetail => _objCachedSourceDetail ?? (_objCachedSourceDetail =
+                                                new SourceString(Source, Page(GlobalOptions.Language), GlobalOptions.Language));
 
-                return _objCachedSourceDetail;
-            }
-        }
         /// <summary>
         /// ID of the object that added this cyberware (if any).
         /// </summary>
@@ -1746,6 +1740,12 @@ namespace Chummer.Backend.Equipment
                 }
                 return blnReturn;
             }
+        }
+
+        public bool Stolen
+        {
+            get => _blnStolen;
+            set => _blnStolen = value;
         }
 
         public void ToggleWirelessBonuses(bool enable)
@@ -3062,6 +3062,51 @@ namespace Chummer.Backend.Equipment
             }
         }
 
+
+        /// <summary>
+        /// Identical to TotalCost, including the modifiers from Suite improvements.
+        /// </summary>
+        public decimal StolenTotalCost
+        {
+            get
+            {
+                decimal decCost = OwnCostPreMultipliers;
+                decimal decReturn = decCost;
+
+                // Factor in the Cost multiplier of the selected CyberwareGrade.
+                decReturn *= Grade.Cost;
+
+                if (DiscountCost)
+                    decReturn *= 0.9m;
+
+                // Add in the cost of all child components.
+                foreach (Cyberware objChild in Children.Where(child => child.Stolen).AsParallel())
+                {
+                    if (objChild.Capacity == "[*]") continue;
+                    // If the child cost starts with "*", multiply the item's base cost.
+                    if (objChild.Cost.StartsWith('*'))
+                    {
+                        decimal decPluginCost = decCost * (Convert.ToDecimal(objChild.Cost.TrimStart('*'), GlobalOptions.InvariantCultureInfo) - 1);
+
+                        if (objChild.DiscountCost)
+                            decPluginCost *= 0.9m;
+
+                        decReturn += decPluginCost;
+                    }
+                    else
+                        decReturn += objChild.TotalCostWithoutModifiers;
+                }
+
+                // Add in the cost of all Gear plugins.
+                decReturn += Gear.Where(g => g.Stolen).AsParallel().Sum(objGear => objGear.StolenTotalCost);
+
+                if (_blnSuite)
+                    decReturn *= 0.9m;
+
+                return decReturn;
+            }
+        }
+
         /// <summary>
         /// Cost of just the Cyberware itself.
         /// </summary>
@@ -4275,6 +4320,51 @@ namespace Chummer.Backend.Equipment
             return true;
         }
 
+        public void Upgrade(Character characterObject, Grade objGrade, int intRating, decimal refundPercentage)
+        {
+            decimal saleCost = TotalCost * refundPercentage;
+            int oldRating = Rating;
+            Grade oldGrade = Grade;
+
+            Rating = intRating;
+            Grade = objGrade;
+            decimal newCost = TotalCost - saleCost;
+
+            if (newCost > characterObject.Nuyen)
+            {
+                MessageBox.Show(LanguageManager.GetString("Message_NotEnoughNuyen", GlobalOptions.Language),
+                    LanguageManager.GetString("MessageTitle_NotEnoughNuyen", GlobalOptions.Language),
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                Rating = oldRating;
+                Grade  = oldGrade;
+                return;
+            }
+            StringBuilder expenseBuilder = new StringBuilder();
+            expenseBuilder.Append(LanguageManager.GetString("String_ExpenseUpgradedCyberware", GlobalOptions.Language) +
+                                  LanguageManager.GetString("String_Space", GlobalOptions.Language) +
+                                  DisplayNameShort(GlobalOptions.Language));
+            if (oldGrade != Grade || oldRating != intRating)
+            {
+                expenseBuilder.Append('(' + LanguageManager.GetString("String_Grade", GlobalOptions.Language) +
+                                      LanguageManager.GetString("String_Space", GlobalOptions.Language) +
+                                      Grade.DisplayName(GlobalOptions.Language) +
+                                      LanguageManager.GetString("String_Space", GlobalOptions.Language) + '>' + oldGrade.DisplayName(GlobalOptions.Language) + 
+                                      LanguageManager.GetString("String_Space", GlobalOptions.Language) + LanguageManager.GetString("String_Rating", GlobalOptions.Language) +
+                                      oldRating +
+                                      LanguageManager.GetString("String_Space", GlobalOptions.Language) + '>' +
+                                      LanguageManager.GetString("String_Space", GlobalOptions.Language) + Rating + ')');
+            }
+            // Create the Expense Log Entry.
+            ExpenseLogEntry objExpense = new ExpenseLogEntry(characterObject);
+            objExpense.Create(newCost * -1, expenseBuilder.ToString(), ExpenseType.Nuyen, DateTime.Now);
+            characterObject.ExpenseEntries.AddWithSort(objExpense);
+            characterObject.Nuyen -= newCost;
+
+            ExpenseUndo objUndo = new ExpenseUndo();
+            objUndo.CreateNuyen(NuyenExpenseType.AddGear, InternalId);
+            objExpense.Undo = objUndo;
+        }
 
         /// <summary>
         /// Alias map for SourceDetail control text and tooltip assignation. 

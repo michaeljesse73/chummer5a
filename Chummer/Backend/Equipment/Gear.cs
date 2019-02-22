@@ -39,7 +39,7 @@ namespace Chummer.Backend.Equipment
     /// </summary>
     [HubClassTag("SourceID", true, "Name", "Extra")]
     [DebuggerDisplay("{DisplayName(GlobalOptions.InvariantCultureInfo, GlobalOptions.DefaultLanguage)}")]
-    public class Gear : IHasChildrenAndCost<Gear>, IHasName, IHasInternalId, IHasXmlNode, IHasMatrixAttributes, IHasNotes, ICanSell, IHasLocation, ICanEquip, IHasSource, IHasRating, INotifyMultiplePropertyChanged, ICanSort
+    public class Gear : IHasChildrenAndCost<Gear>, IHasName, IHasInternalId, IHasXmlNode, IHasMatrixAttributes, IHasNotes, ICanSell, IHasLocation, ICanEquip, IHasSource, IHasRating, INotifyMultiplePropertyChanged, ICanSort, IHasStolenProperty
     {
         private Guid _guiID;
         private string _SourceGuid;
@@ -93,6 +93,7 @@ namespace Chummer.Backend.Equipment
         private string _strOverclocked = "None";
         private bool _blnCanSwapAttributes;
         private int _intSortOrder;
+        private bool _blnStolen;
 
         #region Constructor, Create, Save, Load, and Print Methods
         public Gear(Character objCharacter)
@@ -174,7 +175,8 @@ namespace Chummer.Backend.Equipment
             objXmlGear.TryGetInt32FieldQuickly("childcostmultiplier", ref _intChildCostMultiplier);
             objXmlGear.TryGetInt32FieldQuickly("childavailmodifier", ref _intChildAvailModifier);
             objXmlGear.TryGetBoolFieldQuickly("allowrename", ref _blnAllowRename);
-            
+            objXmlGear.TryGetBoolFieldQuickly("stolen", ref _blnStolen);
+
             // Check for a Custom name
             if (_strName == "Custom Item")
             {
@@ -382,27 +384,8 @@ namespace Chummer.Backend.Equipment
         }
 
         private SourceString _objCachedSourceDetail;
-        public SourceString SourceDetail
-        {
-            get
-            {
-                if (_objCachedSourceDetail == null)
-                {
-                    string strSource = Source;
-                    string strPage = DisplayPage(GlobalOptions.Language);
-                    if (!string.IsNullOrEmpty(strSource) && !string.IsNullOrEmpty(strPage))
-                    {
-                        _objCachedSourceDetail = new SourceString(strSource, strPage, GlobalOptions.Language);
-                    }
-                    else
-                    {
-                        Utils.BreakIfDebug();
-                    }
-                }
-
-                return _objCachedSourceDetail;
-            }
-        }
+        public SourceString SourceDetail => _objCachedSourceDetail ?? (_objCachedSourceDetail =
+                                                new SourceString(Source, DisplayPage(GlobalOptions.Language), GlobalOptions.Language));
 
         public void CreateChildren(XmlDocument xmlGearDocument, XmlNode xmlParentGearNode, bool blnAddImprovements)
         {
@@ -718,6 +701,7 @@ namespace Chummer.Backend.Equipment
             objWriter.WriteElementString("bonded", _blnBonded.ToString());
             objWriter.WriteElementString("equipped", _blnEquipped.ToString());
             objWriter.WriteElementString("wirelesson", _blnWirelessOn.ToString());
+            objWriter.WriteElementString("stolen", _blnStolen.ToString());
             if (_guiWeaponID != Guid.Empty)
                 objWriter.WriteElementString("weaponguid", _guiWeaponID.ToString("D"));
             if (_nodBonus != null)
@@ -826,6 +810,7 @@ namespace Chummer.Backend.Equipment
             _nodWeaponBonus = objNode["weaponbonus"];
             objNode.TryGetStringFieldQuickly("source", ref _strSource);
             objNode.TryGetStringFieldQuickly("page", ref _strPage);
+            objNode.TryGetBoolFieldQuickly("stolen", ref _blnStolen);
             bool blnNeedCommlinkLegacyShim = !objNode.TryGetStringFieldQuickly("canformpersona", ref _strCanFormPersona);
             if (!objNode.TryGetStringFieldQuickly("devicerating", ref _strDeviceRating))
                 GetNode()?.TryGetStringFieldQuickly("devicerating", ref _strDeviceRating);
@@ -2280,6 +2265,42 @@ namespace Chummer.Backend.Equipment
         }
 
         /// <summary>
+        /// Total cost of the Weapon Accessory.
+        /// </summary>
+        public decimal StolenTotalCost
+        {
+            get
+            {
+
+                decimal decReturn = 0;
+                if (Stolen)
+                    decReturn = OwnCostPreMultipliers;
+
+                decimal decPlugin = 0;
+                if (Children.Count > 0)
+                {
+                    // Add in the cost of all child components.
+                    object decPluginLock = new object();
+                    Parallel.ForEach(Children, objChild =>
+                    {
+                        decimal decLoop = objChild.StolenTotalCost;
+                        lock (decPluginLock)
+                            decPlugin += decLoop;
+                    });
+                }
+
+                // The number is divided at the end for ammo purposes. This is done since the cost is per "costfor" but is being multiplied by the actual number of rounds.
+                int intParentMultiplier = (Parent as IHasChildrenAndCost<Gear>)?.ChildCostMultiplier ?? 1;
+
+                decReturn = (decReturn * Quantity * intParentMultiplier) / CostFor;
+                // Add in the cost of the plugins separate since their value is not based on the Cost For number (it is always cost x qty).
+                decReturn += decPlugin * Quantity;
+
+                return decReturn;
+            }
+        }
+
+        /// <summary>
         /// The cost of just the Gear itself.
         /// </summary>
         public decimal OwnCost => (OwnCostPreMultipliers * (Parent as IHasChildrenAndCost<Gear>)?.ChildCostMultiplier ?? 1) / CostFor;
@@ -2797,6 +2818,8 @@ namespace Chummer.Backend.Equipment
             }
         }
 
+        public bool Stolen { get; set; }
+
         /// <summary>
         /// Build up the Tree for the current piece of Gear's children.
         /// </summary>
@@ -3188,6 +3211,7 @@ namespace Chummer.Backend.Equipment
                     new DependancyGraphNode<string>(nameof(ParentID))
                 )
             );
+
         #endregion
 
         /// <summary>

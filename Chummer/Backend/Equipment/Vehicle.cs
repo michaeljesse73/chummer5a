@@ -34,9 +34,9 @@ namespace Chummer.Backend.Equipment
     /// <summary>
     /// Vehicle.
     /// </summary>
-    [HubClassTag("SourceID", true, "Name", null)]
+    [Chummer.HubClassTag("SourceID", true, "Name", null)]
     [DebuggerDisplay("{DisplayName(GlobalOptions.DefaultLanguage)}")]
-    public class Vehicle : IHasInternalId, IHasName, IHasXmlNode, IHasMatrixAttributes, IHasNotes, ICanSell, IHasCustomName, IHasMatrixConditionMonitor, IHasPhysicalConditionMonitor, IHasLocation, IHasSource, ICanSort, IHasGear
+    public class Vehicle : IHasInternalId, IHasName, IHasXmlNode, IHasMatrixAttributes, IHasNotes, ICanSell, IHasCustomName, IHasMatrixConditionMonitor, IHasPhysicalConditionMonitor, IHasLocation, IHasSource, ICanSort, IHasGear, IHasStolenProperty
     {
         private Guid _guiID;
         private string _strName = string.Empty;
@@ -92,6 +92,7 @@ namespace Chummer.Backend.Equipment
         private string _strOverclocked = "None";
         private bool _blnCanSwapAttributes;
         private int _intSortOrder;
+        private bool _blnStolen;
 
         // Condition Monitor Progress.
         private int _intPhysicalCMFilled;
@@ -418,27 +419,8 @@ namespace Chummer.Backend.Equipment
         }
 
         private SourceString _objCachedSourceDetail;
-        public SourceString SourceDetail
-        {
-            get
-            {
-                if (_objCachedSourceDetail == null)
-                {
-                    string strSource = Source;
-                    string strPage = Page(GlobalOptions.Language);
-                    if (!string.IsNullOrEmpty(strSource) && !string.IsNullOrEmpty(strPage))
-                    {
-                        _objCachedSourceDetail = new SourceString(strSource, strPage, GlobalOptions.Language);
-                    }
-                    else
-                    {
-                        Utils.BreakIfDebug();
-                    }
-                }
-
-                return _objCachedSourceDetail;
-            }
-        }
+        public SourceString SourceDetail => _objCachedSourceDetail ?? (_objCachedSourceDetail =
+                                                new SourceString(Source, Page(GlobalOptions.Language), GlobalOptions.Language));
 
         /// <summary>
         /// Save the object's XML to the XmlWriter.
@@ -476,6 +458,7 @@ namespace Chummer.Backend.Equipment
             objWriter.WriteElementString("source", _strSource);
             objWriter.WriteElementString("page", _strPage);
             objWriter.WriteElementString("parentid", _strParentID);
+            objWriter.WriteElementString("sortorder", _intSortOrder.ToString());
             objWriter.WriteElementString("physicalcmfilled", _intPhysicalCMFilled.ToString(GlobalOptions.InvariantCultureInfo));
             objWriter.WriteElementString("matrixcmfilled", _intMatrixCMFilled.ToString(GlobalOptions.InvariantCultureInfo));
             objWriter.WriteElementString("vehiclename", _strVehicleName);
@@ -650,7 +633,7 @@ namespace Chummer.Backend.Equipment
             objNode.TryGetInt32FieldQuickly("physicalcmfilled", ref _intPhysicalCMFilled);
             objNode.TryGetStringFieldQuickly("vehiclename", ref _strVehicleName);
             objNode.TryGetInt32FieldQuickly("sortorder", ref _intSortOrder);
-
+            objNode.TryGetBoolFieldQuickly("stolen", ref _blnStolen);
             string strNodeInnerXml = objNode.InnerXml;
             if (strNodeInnerXml.Contains("<mods>"))
             {
@@ -1531,6 +1514,38 @@ namespace Chummer.Backend.Equipment
                 }
                 decCost += WeaponMounts.AsParallel().Sum(wm => wm.TotalCost);
                 decCost += Gear.AsParallel().Sum(objGear => objGear.TotalCost);
+
+                return decCost;
+            }
+        }
+
+
+        /// <summary>
+        /// Total cost of the Vehicle including all after-market Modification.
+        /// </summary>
+        public decimal StolenTotalCost
+        {
+            get
+            {
+                decimal decCost = 0;
+                if (Stolen) decCost += OwnCost;
+
+                foreach (VehicleMod objMod in Mods)
+                {
+                    // Do not include the price of Mods that are part of the base configureation.
+                    if (!objMod.IncludedInVehicle)
+                    {
+                        decCost += objMod.StolenTotalCost;
+                    }
+                    else
+                    {
+                        // If the Mod is a part of the base config, check the items attached to it since their cost still counts.
+                        decCost += objMod.Weapons.AsParallel().Where(objGear => objGear.Stolen).Sum(objWeapon => objWeapon.StolenTotalCost);
+                        decCost += objMod.Cyberware.AsParallel().Where(objGear => objGear.Stolen).Sum(objCyberware => objCyberware.StolenTotalCost);
+                    }
+                }
+                decCost += WeaponMounts.AsParallel().Where(objGear => objGear.Stolen).Sum(wm => wm.StolenTotalCost);
+                decCost += Gear.AsParallel().Where(objGear => objGear.Stolen).Sum(objGear => objGear.StolenTotalCost);
 
                 return decCost;
             }
@@ -2903,6 +2918,11 @@ namespace Chummer.Backend.Equipment
 
                 return SystemColors.WindowText;
             }
+        }
+        public bool Stolen
+        {
+            get => _blnStolen;
+            set => _blnStolen = value;
         }
         #endregion
 

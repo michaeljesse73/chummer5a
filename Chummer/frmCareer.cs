@@ -493,12 +493,13 @@ namespace Chummer
                 XmlNode node = objDoc.SelectSingleNode($"/chummer/metatypes/metatype[name = \"{CharacterObject.Metatype}\"]");
                 List<ListItem> lstAttributeCategories = new List<ListItem>
                 {
-                    new ListItem("Shapeshifter", node?.SelectSingleNode("name/@translate")?.InnerText ?? CharacterObject.Metatype)
+                    new ListItem("Standard", node?.SelectSingleNode("name/@translate")?.InnerText ?? CharacterObject.Metatype)
                 };
 
                 node = node?.SelectSingleNode($"metavariants/metavariant[name = \"{CharacterObject.Metavariant}\"]/name/@translate");
 
-                lstAttributeCategories.Add(new ListItem("Standard", node?.InnerText ?? CharacterObject.Metavariant));
+                //The Shapeshifter attribute category is treated as the METAHUMAN form of a shapeshifter. 
+                lstAttributeCategories.Add(new ListItem("Shapeshifter", node?.InnerText ?? CharacterObject.Metavariant));
 
                 lstAttributeCategories.Sort(CompareListItems.CompareNames);
                 cboAttributeCategory.BeginUpdate();
@@ -13153,7 +13154,7 @@ namespace Chummer
             else
             {
                 flpDrugs.Visible = false;
-                btnDeleteCustomDrug.Enabled = false;
+                btnDeleteCustomDrug.Enabled = treCustomDrugs.SelectedNode?.Tag is ICanRemove;
             }
 
             IsRefreshing = false;
@@ -13276,7 +13277,7 @@ namespace Chummer
                 tabCyberwareCM.Visible = false;
 
                 // Buttons
-                cmdDeleteCyberware.Enabled = false;
+                cmdDeleteCyberware.Enabled = treCyberware.SelectedNode?.Tag is ICanRemove;
 
                 IsRefreshing = false;
                 flpCyberware.ResumeLayout();
@@ -13468,7 +13469,7 @@ namespace Chummer
                 gpbWeaponsMatrix.Visible = false;
 
                 // Buttons
-                cmdDeleteWeapon.Enabled = false;
+                cmdDeleteWeapon.Enabled = treWeapons.SelectedNode?.Tag is ICanRemove;
 
                 IsRefreshing = false;
                 flpWeapons.ResumeLayout();
@@ -13921,7 +13922,7 @@ namespace Chummer
                 gpbArmorLocation.Visible = false;
 
                 // Buttons
-                cmdDeleteArmor.Enabled = false;
+                cmdDeleteArmor.Enabled = treArmor.SelectedNode?.Tag is ICanRemove;
 
                 IsRefreshing = false;
                 flpArmor.ResumeLayout();
@@ -14149,7 +14150,7 @@ namespace Chummer
                 tabGearMatrixCM.Visible = false;
 
                 // Buttons
-                cmdDeleteGear.Enabled = false;
+                cmdDeleteGear.Enabled = treGear.SelectedNode?.Tag is ICanRemove;
 
                 IsRefreshing = false;
                 flpGear.ResumeLayout();
@@ -14511,10 +14512,13 @@ namespace Chummer
         private bool PickGear(IHasChildren<Gear> iParent, Location objLocation = null, bool blnAmmoOnly = false, Gear objStackGear = null, string strForceItemValue = "", IEnumerable<string> lstForceItemPrefixes = null)
         {
             bool blnNullParent = false;
-
-            if (!((iParent is Gear ? iParent : null) is Gear objSelectedGear))
+            Gear objSelectedGear = null;
+            if (iParent is Gear)
             {
-                objSelectedGear = new Gear(CharacterObject);
+                objSelectedGear = (Gear) iParent;
+            }
+            else
+            {
                 blnNullParent = true;
             }
 
@@ -14538,7 +14542,7 @@ namespace Chummer
                 }
             }
 
-            frmSelectGear frmPickGear = new frmSelectGear(CharacterObject, objSelectedGear.ChildAvailModifier, objSelectedGear.ChildCostMultiplier, objSelectedGear, strCategories);
+            frmSelectGear frmPickGear = new frmSelectGear(CharacterObject, objSelectedGear?.ChildAvailModifier ?? 0, objSelectedGear?.ChildCostMultiplier ?? 1, objSelectedGear, strCategories);
             if (!blnNullParent)
             {
                 // If the Gear has a Capacity with no brackets (meaning it grants Capacity), show only Subsystems (those that conume Capacity).
@@ -14572,7 +14576,7 @@ namespace Chummer
             }
             if (blnAmmoOnly)
             {
-                frmPickGear.SelectedGear = objSelectedGear.strSourceID;
+                frmPickGear.SelectedGear = objSelectedGear?.strSourceID;
             }
 
             frmPickGear.ShowDialog(this);
@@ -14592,7 +14596,8 @@ namespace Chummer
             string strForceValue = string.Empty;
             if (blnAmmoOnly)
             {
-                strForceValue = objSelectedGear.Extra;
+                strForceValue = objSelectedGear?.Extra;
+                strForceItemValue = string.Empty;
             }
             if (!string.IsNullOrEmpty(strForceItemValue))
                 strForceValue = strForceItemValue;
@@ -14951,7 +14956,7 @@ namespace Chummer
             if (treLifestyles.SelectedNode == null || treLifestyles.SelectedNode.Level == 0 || !(treLifestyles.SelectedNode?.Tag is Lifestyle objLifestyle))
             {
                 flpLifestyleDetails.Visible = false;
-                cmdDeleteLifestyle.Enabled = false;
+                cmdDeleteLifestyle.Enabled = treLifestyles.SelectedNode?.Tag is ICanRemove;
 
                 IsRefreshing = false;
                 flpLifestyleDetails.ResumeLayout();
@@ -15043,7 +15048,7 @@ namespace Chummer
                 gpbVehiclesMatrix.Visible = false;
 
                 // Buttons
-                cmdDeleteVehicle.Enabled = false;
+                cmdDeleteVehicle.Enabled = treVehicles.SelectedNode?.Tag is ICanRemove;
 
                 IsRefreshing = false;
                 flpVehicles.ResumeLayout();
@@ -16028,8 +16033,8 @@ private void RefreshSelectedSpell()
     else
     {
         gpbMagicianSpell.Visible = false;
-        cmdDeleteSpell.Enabled = false;
-    }
+        cmdDeleteSpell.Enabled = treSpells.SelectedNode?.Tag is ICanRemove;
+            }
     IsRefreshing = false;
 }
 
@@ -16206,7 +16211,7 @@ private void RefreshSelectedSpell()
             else
             {
                 gpbTechnomancerComplexForm.Visible = false;
-                cmdDeleteComplexForm.Enabled = false;
+                cmdDeleteComplexForm.Enabled = treComplexForms.SelectedNode?.Tag is ICanRemove;
             }
 
             IsRefreshing = false;
@@ -17321,6 +17326,39 @@ private void RefreshSelectedSpell()
 
         private void cboGearOverclocker_SizeChanged(object sender, EventArgs e)
         {
+
+        }
+
+        private void tsCyberwareUpgrade_Click(object sender, EventArgs e)
+        {
+            if (treCyberware.SelectedNode?.Tag is Cyberware objCyberware)
+            {
+                if (objCyberware.Capacity == "[*]" && treCyberware.SelectedNode.Level == 2)
+                {
+                    MessageBox.Show(LanguageManager.GetString("Message_CannotRemoveCyberware", GlobalOptions.Language), LanguageManager.GetString("MessageTitle_CannotRemoveCyberware", GlobalOptions.Language), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                frmSellItem frmSell = new frmSellItem();
+                frmSell.ShowDialog(this);
+
+                if (frmSell.DialogResult == DialogResult.Cancel)
+                    return;
+                frmSelectCyberware pickCyber = new frmSelectCyberware(CharacterObject, objCyberware.SourceType);
+                pickCyber.DefaultSearchText = objCyberware.DisplayNameShort(GlobalOptions.Language);
+                pickCyber.ShowDialog(this);
+
+                if (pickCyber.DialogResult == DialogResult.Cancel)
+                    return;
+
+                objCyberware.Upgrade(CharacterObject, pickCyber.SelectedGrade, pickCyber.SelectedRating, frmSell.SellPercent);
+
+                CharacterObject.IncreaseEssenceHole((int)(objCyberware.CalculatedESS() * 100));
+            }
+            else { Utils.BreakIfDebug(); }
+
+            IsCharacterUpdateRequested = true;
+            IsDirty = true;
 
         }
     }
