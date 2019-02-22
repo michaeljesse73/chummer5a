@@ -23,18 +23,22 @@
   <righttoleft>False</righttoleft>
   <strings>
 	  <!-- Region Meta Strings -->
-	<string>
-		<key>Message_Insufficient_Permissions_Warning</key>
-		<text>Chummer5 is currently not being run with proper permissions! If you are not running Chummer5 as an administrator, please move it to a folder owned by your user.</text>
-	</string>
-	<string>
-		<key>Message_Save_Error_Warning</key>
-		<text>Chummer5 encountered an error while saving the character.</text>
-	</string>
-	<string>
-		<key>Message_File_Cannot_Be_Accessed</key>
-		<text>Chummer5 cannot access the file for writing. Please make sure it has permission to write to the location and that the file is not currently in use.</text>
-	</string>
+	  <string>
+		  <key>Message_Insufficient_Permissions_Warning</key>
+		  <text>Chummer5 is currently not being run with proper permissions! If you are not running Chummer5 as an administrator, please move it to a folder owned by your user.</text>
+	  </string>
+	  <string>
+		  <key>Message_Save_Error_Warning</key>
+		  <text>Chummer5 encountered an error while saving the character.</text>
+	  </string>
+	  <string>
+		  <key>Message_File_Cannot_Be_Accessed</key>
+		  <text>Chummer5 cannot access the file for writing. Please make sure it has permission to write to the location and that the file is not currently in use.</text>
+	  </string>
+    <string>
+      <key>Message_Files_Cannot_Be_Removed</key>
+      <text>Chummer5 could not remove the below files during update as they were inaccessible:</text>
+    </string>
     <!-- End Region -->
     <!-- Region File Dialog Filter Strings -->
   <string>
@@ -1454,6 +1458,10 @@
       <text>Save &amp;As</text>
     </string>
     <string>
+      <key>Menu_FileSaveAsCreated</key>
+      <text>Save As &amp;Created</text>
+    </string>
+    <string>
       <key>Menu_FileExport</key>
       <text>Export</text>
     </string>
@@ -2554,6 +2562,10 @@
       <text>{0} over your Nuyen total</text>
     </string>
     <string>
+      <key>Message_InvalidStolenNuyenExcess</key>
+      <text>{0} over your Nuyen total for Stolen Gear</text>
+    </string>
+    <string>
       <key>Message_InvalidEssenceExcess</key>
       <text>{0} over the Essence limit</text>
     </string>
@@ -3279,6 +3291,10 @@
       <text>Purchased Cyberware Suite</text>
     </string>
     <string>
+      <key>String_ExpenseUpgradedCyberware</key>
+      <text>Upgraded Cyberware</text>
+    </string>
+    <string>
       <key>String_ExpensePurchaseWeapon</key>
       <text>Purchased Weapon</text>
     </string>
@@ -3991,6 +4007,10 @@
     <string>
       <key>Label_Nuyen</key>
       <text>Nuyen:</text>
+    </string>
+    <string>
+      <key>Label_StolenGearNuyen</key>
+      <text>Nuyen (Stolen):</text>
     </string>
     <string>
       <key>Node_SelectedQualities</key>
@@ -4751,6 +4771,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
     </string>
     <!-- End Region-->
     <!-- Region Street Gear/Armor Tab -->
+    <string>
+      <key>Checkbox_Stolen</key>
+      <text>Stolen</text>
+    </string>
     <string>
       <key>Checkbox_Equipped</key>
       <text>Equipped</text>
@@ -9586,6 +9610,14 @@ Only one attribute may be at its Maximum value during character creation.</text>
     <string>
       <key>String_UI</key>
       <text>UI</text>
+    </string>
+    <string>
+      <key>Message_OrphanedImprovements</key>
+      <text>Orphaned Improvements were found in your character file. In most cases it should be safe to load this character, but you may want to make a backup copy of this character file.\n\n Do you want to continue loading and remove these improvements?</text>
+    </string>
+    <string>
+      <key>MessageTitle_OrphanedImprovements</key>
+      <text>Orphaned Improvements Found</text>
     </string>
     <!-- End Region -->
     <!-- Region HeroLab Importer -->

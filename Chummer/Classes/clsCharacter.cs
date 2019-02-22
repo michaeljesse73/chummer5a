@@ -73,6 +73,7 @@ namespace Chummer
         private int _intPublicAwareness;
         private int _intBurntStreetCred;
         private decimal _decNuyen;
+        private decimal _decStolenNuyen;
         private decimal _decStartingNuyen;
         private int _intMaxAvail = 12;
         private decimal _decEssenceAtSpecialStart = decimal.MinValue;
@@ -677,6 +678,9 @@ namespace Chummer
                     new DependancyGraphNode<string>(nameof(DisplayNuyen),
                         new DependancyGraphNode<string>(nameof(Nuyen))
                     ),
+                    new DependancyGraphNode<string>(nameof(DisplayStolenNuyen),
+                        new DependancyGraphNode<string>(nameof(StolenNuyen))
+                    ),
                     new DependancyGraphNode<string>(nameof(DisplayKarma),
                         new DependancyGraphNode<string>(nameof(Karma))
                     ),
@@ -686,6 +690,7 @@ namespace Chummer
                             new DependancyGraphNode<string>(nameof(StartingNuyenModifiers)),
                             new DependancyGraphNode<string>(nameof(NuyenBP),
                                 new DependancyGraphNode<string>(nameof(TotalNuyenMaximumBP),
+                                    new DependancyGraphNode<string>(nameof(StolenNuyen)),
                                     new DependancyGraphNode<string>(nameof(NuyenMaximumBP)),
                                     new DependancyGraphNode<string>(nameof(IgnoreRules))
                                 )
@@ -1825,8 +1830,8 @@ namespace Chummer
             IsSaving = false;
             _dateFileLastWriteTime = File.GetLastWriteTimeUtc(strFileName);
 
-            if(callOnSaveCallBack)
-                this.OnSaveCompleted(this, this);
+            if(callOnSaveCallBack && OnSaveCompleted != null)
+                OnSaveCompleted(this, this);
             return blnErrorFree;
         }
 
@@ -1836,7 +1841,8 @@ namespace Chummer
         /// Load the Character from an XML file.
         /// </summary>
         /// <param name="frmLoadingForm">Instancs of frmLoading to use to update with loading progress. frmLoading::PerformStep() is called 35 times within this method, so plan accordingly.</param>
-        public bool Load(frmLoading frmLoadingForm = null)
+        /// <param name="showWarnings">Whether warnings about book content and other character content should be loaded.</param>
+        public bool Load(frmLoading frmLoadingForm = null, bool showWarnings = true)
         {
             if(!File.Exists(_strFileName))
                 return false;
@@ -1854,8 +1860,15 @@ namespace Chummer
                 }
                 catch(XmlException ex)
                 {
-                    MessageBox.Show(string.Format(LanguageManager.GetString("Message_FailedLoad", GlobalOptions.Language), ex.Message),
-                        LanguageManager.GetString("MessageTitle_FailedLoad", GlobalOptions.Language), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (showWarnings)
+                    {
+                        MessageBox.Show(
+                            string.Format(LanguageManager.GetString("Message_FailedLoad", GlobalOptions.Language),
+                                ex.Message),
+                            LanguageManager.GetString("MessageTitle_FailedLoad", GlobalOptions.Language),
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
                     return false;
                 }
             }
@@ -1881,7 +1894,7 @@ namespace Chummer
             // Get the game edition of the file if possible and make sure it's intended to be used with this version of the application.
             string strGameEdition = string.Empty;
             if(xmlCharacterNavigator.TryGetStringFieldQuickly("gameedition", ref strGameEdition) &&
-                !string.IsNullOrEmpty(strGameEdition) && strGameEdition != "SR5")
+                !string.IsNullOrEmpty(strGameEdition) && strGameEdition != "SR5" && showWarnings && !Utils.IsUnitTest)
             {
                 MessageBox.Show(LanguageManager.GetString("Message_IncorrectGameVersion_SR4", GlobalOptions.Language),
                     LanguageManager.GetString("MessageTitle_IncorrectGameVersion", GlobalOptions.Language),
@@ -1894,7 +1907,7 @@ namespace Chummer
             string strVersion = string.Empty;
             //Check to see if the character was created in a version of Chummer later than the currently installed one.
             if(xmlCharacterNavigator.TryGetStringFieldQuickly("appversion", ref strVersion) &&
-                !string.IsNullOrEmpty(strVersion))
+                !string.IsNullOrEmpty(strVersion) && !Utils.IsUnitTest)
             {
                 if(strVersion.StartsWith("0."))
                 {
@@ -1904,6 +1917,7 @@ namespace Chummer
                 Version.TryParse(strVersion, out _verSavedVersion);
             }
 #if !DEBUG
+if (!Utils.IsUnitTest){
                 Version verCurrentversion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
                 int intResult = verCurrentversion.CompareTo(_verSavedVersion);
                 if (intResult == -1)
@@ -1916,10 +1930,10 @@ namespace Chummer
                         IsLoading = false;
                         return false;
                     }
-                }
+                }}
 #endif
-            // Get the name of the settings file in use if possible.
-            xmlCharacterNavigator.TryGetStringFieldQuickly("settings", ref _strSettingsFileName);
+                // Get the name of the settings file in use if possible.
+                xmlCharacterNavigator.TryGetStringFieldQuickly("settings", ref _strSettingsFileName);
 
             // Load the character's settings file.
             if(!_objOptions.Load(_strSettingsFileName))
@@ -2181,8 +2195,7 @@ namespace Chummer
             // Improvements.
             objXmlNodeList = objXmlCharacter.SelectNodes("improvements/improvement");
             string strCharacterInnerXml = objXmlCharacter.InnerXml;
-            // Orphaned improvements shouldn't be getting created after 5.198. If this is proven incorrect, bump up the version here.
-            bool blnDoCheckForOrphanedImprovements = LastSavedVersion < new Version("5.198.0");
+            bool removeImprovements = false;
             foreach(XmlNode objXmlImprovement in objXmlNodeList)
             {
                 string strImprovementSource = objXmlImprovement["improvementsource"]?.InnerText;
@@ -2195,17 +2208,30 @@ namespace Chummer
                     (strImprovementSource == "EssenceLoss" || strImprovementSource == "EssenceLossChargen"))
                     continue;
 
-                if(blnDoCheckForOrphanedImprovements)
+                string strLoopSourceName = objXmlImprovement["sourcename"]?.InnerText;
+                if (!string.IsNullOrEmpty(strLoopSourceName) && strLoopSourceName.IsGuid() &&
+                    objXmlImprovement["custom"]?.InnerText != bool.TrueString)
                 {
-                    string strLoopSourceName = objXmlImprovement["sourcename"]?.InnerText;
-                    if(!string.IsNullOrEmpty(strLoopSourceName) && strLoopSourceName.IsGuid() &&
-                        objXmlImprovement["custom"]?.InnerText != bool.TrueString)
+                    // Hacky way to make sure this character isn't loading in any orphaned improvements.
+                    // SourceName ID will pop up minimum twice in the save if the improvement's source is actually present: once in the improvement and once in the parent that added it.
+                    if (strCharacterInnerXml.IndexOf(strLoopSourceName, StringComparison.Ordinal) ==
+                        strCharacterInnerXml.LastIndexOf(strLoopSourceName, StringComparison.Ordinal))
                     {
-                        // Hacky way to make sure this character isn't loading in any orphaned improvements.
-                        // SourceName ID will pop up minimum twice in the save if the improvement's source is actually present: once in the improvement and once in the parent that added it.
-                        if(strCharacterInnerXml.IndexOf(strLoopSourceName, StringComparison.Ordinal) ==
-                            strCharacterInnerXml.LastIndexOf(strLoopSourceName, StringComparison.Ordinal))
-                            continue;
+                        if (!Utils.IsUnitTest)
+                        {
+                            //Utils.BreakIfDebug();
+                            if (removeImprovements || (MessageBox.Show(LanguageManager.GetString("Message_OrphanedImprovements"),
+                                     LanguageManager.GetString("MessageTitle_OrphanedImprovements"), MessageBoxButtons.YesNo,
+                                     MessageBoxIcon.Error) == DialogResult.Yes))
+                            {
+                                removeImprovements = true;
+                                continue;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
                     }
                 }
 
@@ -11085,7 +11111,22 @@ namespace Chummer
             }
         }
 
+        public decimal StolenNuyen
+        {
+            get => _decStolenNuyen;
+            set
+            {
+                if (_decStolenNuyen != value)
+                {
+                    _decStolenNuyen = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public string DisplayNuyen => Nuyen.ToString(_objOptions.NuyenFormat, GlobalOptions.CultureInfo) + '¥';
+
+        public string DisplayStolenNuyen => StolenNuyen.ToString(_objOptions.NuyenFormat, GlobalOptions.CultureInfo) + '¥';
 
         /// <summary>
         /// Amount of Nuyen the character started with via the priority system.
@@ -11120,7 +11161,7 @@ namespace Chummer
             get => _decNuyenBP;
             set
             {
-                decimal decNewValue = Math.Min(value, TotalNuyenMaximumBP);
+                decimal decNewValue = Math.Max(Math.Min(value, TotalNuyenMaximumBP), 0);
                 if(_decNuyenBP != decNewValue)
                 {
                     _decNuyenBP = decNewValue;
@@ -14400,6 +14441,7 @@ namespace Chummer
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(strPropertyToChange));
             }
 
+            if (Program.MainForm == null) return;
             foreach(Character objLoopOpenCharacter in Program.MainForm.OpenCharacters)
             {
                 if(objLoopOpenCharacter != this && objLoopOpenCharacter.LinkedCharacters.Contains(this))
