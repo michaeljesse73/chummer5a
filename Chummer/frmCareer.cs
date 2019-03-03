@@ -13286,6 +13286,10 @@ namespace Chummer
 
             string strSpace = LanguageManager.GetString("String_Space", GlobalOptions.Language);
             string strESSFormat = CharacterObjectOptions.EssenceFormat;
+            if (treCyberware.SelectedNode?.Tag is IHasWirelessBonus hasWirelessBonus)
+            {
+                chkCyberwareWireless.Checked = hasWirelessBonus.WirelessOn;
+            }
             if (treCyberware.SelectedNode?.Tag is IHasSource objSelected)
             {
                 lblCyberwareSourceLabel.Visible = true;
@@ -17104,6 +17108,8 @@ private void RefreshSelectedSpell()
         }
         private void cboAttributeCategory_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (CharacterObject.AttributeSection.AttributeCategory ==
+                AttributeSection.ConvertAttributeCategory(cboAttributeCategory.SelectedValue.ToString())) return;
             CharacterObject.AttributeSection.AttributeCategory = AttributeSection.ConvertAttributeCategory(cboAttributeCategory.SelectedValue.ToString());
             CharacterObject.AttributeSection.ResetBindings();
             CharacterObject.AttributeSection.ForceAttributePropertyChangedNotificationAll(nameof(CharacterAttrib.MetatypeMaximum), nameof(CharacterAttrib.MetatypeMinimum));
