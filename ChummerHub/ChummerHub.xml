@@ -9,10 +9,16 @@
             Class to enalbe Swagger to generate an Example
             </summary>
         </member>
-        <member name="P:ChummerHub.Models.V1.Tag.TagComment">
+        <member name="P:ChummerHub.Models.V1.SINnerGroup.MyAdminIdentityRole">
             <summary>
-            This has NO FUNCTION and is only here for Debugging reasons.
+            Only users of the specified Role can join this group
             </summary>
+        </member>
+        <member name="P:ChummerHub.Models.V1.Tag.TagComment">
+             <summary>
+             This has NO FUNCTION and is only here for Debugging reasons.
+             </summary>
+            
         </member>
         <member name="M:ChummerHub.Controllers.V1.SINnerController.GetDownloadFile(System.Guid)">
             <summary>
@@ -38,20 +44,31 @@
             <param name="uploadInfo"></param>
             <returns></returns>
         </member>
-        <member name="M:ChummerHub.Controllers.V1.SINnerGroupController.PostGroup(System.String,System.Guid)">
+        <member name="M:ChummerHub.Controllers.V1.SINnerGroupController.PutGroupInGroup(System.Guid,System.String,System.Nullable{System.Guid},System.String,System.Boolean)">
+            <summary>
+            Store the new group
+            </summary>
+            <param name="GroupId"></param>
+            <param name="groupname">In case you want to rename the group</param>
+            <returns></returns>
+        </member>
+        <member name="M:ChummerHub.Controllers.V1.SINnerGroupController.PostGroup(System.String,System.Guid,System.String,System.String)">
             <summary>
             Store the new group
             </summary>
             <param name="Groupname"></param>
             <param name="SinnerId"></param>
+            <param name="language"></param>
+            <param name="pwhash"></param>
             <returns></returns>
         </member>
-        <member name="M:ChummerHub.Controllers.V1.SINnerGroupController.PutSINerInGroup(System.Guid,System.Guid)">
+        <member name="M:ChummerHub.Controllers.V1.SINnerGroupController.PutSINerInGroup(System.Guid,System.Guid,System.String)">
             <summary>
             Store the new group
             </summary>
             <param name="GroupId"></param>
             <param name="SinnerId"></param>
+            <param name="pwhash"></param>
             <returns></returns>
         </member>
         <member name="M:ChummerHub.Controllers.V1.SINnerGroupController.GetGroupById(System.Guid)">
@@ -68,6 +85,21 @@
             <param name="Groupname"></param>
             <param name="UsernameOrEmail"></param>
             <param name="SINnerName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ChummerHub.Controllers.V1.SINnerGroupController.DeleteLeaveGroup(System.Guid,System.Guid)">
+            <summary>
+            Remove a sinner from a group. If this sinner is the last member of it's group, the group will be deleted as well!
+            </summary>
+            <param name="groupid"></param>
+            <param name="sinnerid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ChummerHub.Controllers.V1.SINnerGroupController.GetGroupMembers(System.Guid)">
+            <summary>
+            Search for all members and subgroups of a group
+            </summary>
+            <param name="groupid"></param>
             <returns></returns>
         </member>
         <member name="T:ChummerHub.Properties.Resources">
@@ -135,6 +167,16 @@
             <typeparam name="T"></typeparam>
             <param name="key"></param>
             <returns></returns>
+        </member>
+        <member name="P:ChummerHub.Startup.ConnectionStringToMasterSqlDb">
+            <summary>
+            This leads to the master-azure-db to create/edit/delete users
+            </summary>
+        </member>
+        <member name="P:ChummerHub.Startup.ConnectionStringSinnersDb">
+            <summary>
+            This leads to the master-azure-db to create/edit/delete users
+            </summary>
         </member>
         <member name="P:Microsoft.AspNetCore.Identity.ApplicationUser.Groupname">
             <summary>
