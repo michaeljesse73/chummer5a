@@ -52,7 +52,8 @@ namespace ChummerHub.Migrations
 
                     b.Property<bool>("CanEdit");
 
-                    b.Property<string>("EMail");
+                    b.Property<string>("EMail")
+                        .HasMaxLength(64);
 
                     b.Property<Guid?>("SINnerId");
 
@@ -74,13 +75,17 @@ namespace ChummerHub.Migrations
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Alias");
+                    b.Property<string>("Alias")
+                        .HasMaxLength(64);
 
                     b.Property<string>("DownloadUrl");
 
                     b.Property<string>("GoogleDriveFileId");
 
                     b.Property<string>("JsonSummary");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(6);
 
                     b.Property<DateTime>("LastChange");
 
@@ -128,15 +133,30 @@ namespace ChummerHub.Migrations
 
                     b.Property<string>("GameMasterUsername");
 
-                    b.Property<string>("Groupname");
+                    b.Property<string>("Groupname")
+                        .HasMaxLength(64);
 
                     b.Property<bool>("IsPublic");
 
+                    b.Property<string>("Language")
+                        .HasMaxLength(6);
+
+                    b.Property<string>("MyAdminIdentityRole")
+                        .HasMaxLength(64);
+
+                    b.Property<Guid?>("MyParentGroupId");
+
                     b.Property<Guid?>("MySettingsId");
+
+                    b.Property<string>("PasswordHash");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Groupname");
+
+                    b.HasIndex("Language");
+
+                    b.HasIndex("MyParentGroupId");
 
                     b.HasIndex("MySettingsId");
 
@@ -200,15 +220,18 @@ namespace ChummerHub.Migrations
 
                     b.Property<Guid?>("SINnerMetaDataId");
 
-                    b.Property<string>("TagComment");
+                    b.Property<string>("TagComment")
+                        .HasMaxLength(64);
 
                     b.Property<Guid?>("TagId");
 
-                    b.Property<string>("TagName");
+                    b.Property<string>("TagName")
+                        .HasMaxLength(64);
 
                     b.Property<int>("TagType");
 
-                    b.Property<string>("TagValue");
+                    b.Property<string>("TagValue")
+                        .HasMaxLength(64);
 
                     b.HasKey("Id");
 
@@ -395,6 +418,10 @@ namespace ChummerHub.Migrations
 
             modelBuilder.Entity("ChummerHub.Models.V1.SINnerGroup", b =>
                 {
+                    b.HasOne("ChummerHub.Models.V1.SINnerGroup", "MyParentGroup")
+                        .WithMany("MyGroups")
+                        .HasForeignKey("MyParentGroupId");
+
                     b.HasOne("ChummerHub.Models.V1.SINnerGroupSetting", "MySettings")
                         .WithMany()
                         .HasForeignKey("MySettingsId");

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ApplicationInsights.DataContracts;
 
 namespace ChummerHub
 {
@@ -38,11 +40,43 @@ namespace ChummerHub
             return;
         }
 
+        private static bool _preventOverflow = false;
+       
         private static void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
         {
-            System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(true);
-            var tc = new Microsoft.ApplicationInsights.TelemetryClient();
-            tc.TrackTrace("Exception thrown: " + e.Exception.ToString() + " thrown at " + st.ToString());
+            try
+            {
+                if (_preventOverflow)
+                    return;
+                _preventOverflow = true;
+                string msg = e.Exception.ToString() + Environment.NewLine + Environment.NewLine;
+
+                if (!e.Exception.Message.Contains("Non-static method requires a target."))
+                {
+                    Console.WriteLine(msg);
+                    //System.Diagnostics.Trace.TraceError(msg, e.Exception);
+                    System.Diagnostics.Debug.WriteLine(msg);
+                    var tc = new Microsoft.ApplicationInsights.TelemetryClient();
+                    ExceptionTelemetry et = new ExceptionTelemetry(e.Exception);
+                    tc.TrackException(et);
+                }
+                else
+                {
+                    Console.WriteLine(msg);
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.ToString() + Environment.NewLine + Environment.NewLine;
+                Console.WriteLine(msg);
+                System.Diagnostics.Debug.WriteLine(msg);
+                //AggregateException ae = new AggregateException(new List<Exception>() { e.Exception, ex });
+                //throw ae;
+            }
+            finally
+            {
+                _preventOverflow = false;
+            }
         }
 
         public static void Seed()
@@ -59,6 +93,16 @@ namespace ChummerHub
                 }
                 catch(Exception e)
                 {
+                    try
+                    {
+                        var tc = new Microsoft.ApplicationInsights.TelemetryClient();
+                        var telemetry = new Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry(e);
+                        tc.TrackException(telemetry);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex.ToString());
+                    }
                     logger.LogError(e.Message, "An error occurred migrating the DB: " + e.ToString());
                     context.Database.EnsureDeleted();
                     context.Database.EnsureCreated();
@@ -75,6 +119,16 @@ namespace ChummerHub
                 }
                 catch(Exception ex)
                 {
+                    try
+                    {
+                        var tc = new Microsoft.ApplicationInsights.TelemetryClient();
+                        var telemetry = new Microsoft.ApplicationInsights.DataContracts.ExceptionTelemetry(ex);
+                        tc.TrackException(telemetry);
+                    }
+                    catch (Exception e1)
+                    {
+                        logger.LogError(e1.ToString());
+                    }
                     logger.LogError(ex.Message, "An error occurred seeding the DB: " + ex.ToString());
                 }
             }

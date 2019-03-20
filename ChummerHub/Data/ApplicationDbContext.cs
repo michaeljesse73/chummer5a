@@ -27,9 +27,11 @@ namespace ChummerHub.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            
             if(!optionsBuilder.IsConfigured)
             {
-                if(HostingEnvironment == null)
+                
+                if (HostingEnvironment == null)
                 {
                     string constring = "Server=(localdb)\\mssqllocaldb;Database=SINners_DB;Trusted_Connection=True;MultipleActiveResultSets=true";
                     optionsBuilder.UseSqlServer(constring);
@@ -44,8 +46,11 @@ namespace ChummerHub.Data
                     optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
                 }
             }
+            
             optionsBuilder.EnableSensitiveDataLogging();
         }
+
+        
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -62,6 +67,8 @@ namespace ChummerHub.Data
                 .HasIndex(b => b.Groupname);
             builder.Entity<ChummerHub.Models.V1.SINerUserRight>()
                 .HasIndex(b => b.EMail);
+            builder.Entity<ChummerHub.Models.V1.SINnerGroup>()
+                .HasIndex(b => b.Language);
         }
 
         public DbSet<ChummerHub.Models.V1.SINner> SINners { get; set; }
@@ -79,10 +86,5 @@ namespace ChummerHub.Data
         public DbSet<ChummerHub.Models.V1.SINnerMetaData> SINnerMetaData { get; set; }
 
         public DbSet<ChummerHub.Models.V1.SINnerGroupSetting> SINnerGroupSettings { get; set; }
-
-        
-
-
-
     }
 }

@@ -1,7 +1,17 @@
-Future Build 1.0.0.2
+Future Build 1.0.0.3
+
+Application Changes:
+
+- creating a new character with the plugin enabled no longer crashes the program
+
+Build 1.0.0.2
 
 WebService Changes:
 
+- when retouring the groupmembers of a sinner, the sinner itself is now excluded from the result
+- the group of a character is now perserved even if he gets reposted
+- added two parameters to addsqlusers to set the azure firewall rule
+- added the ability to add sqlusers to the Azure-Database (Swagger GetAddSqlDbUser), so that Admins can connect via SSMS or Azure Data Studio 
 - added a "JoinGroup" function to the Groupscontroller
 - added a GM-Property (string username) to groups
 - added a SINGroupSettings-Object to the DataModel for an upcomming online-settings-archive.
@@ -15,6 +25,14 @@ WebService Changes:
 
 Application Changes:
 
+- Tags are now shown in the SinnersAdvanced-Tab
+- fixed a bug where a new Id is given to an already uploaded character.
+- removed the #ifdebug-braces, so that the SINners-Tab will be visible in release (SinnerSearch-Menuitem is still returning null in Release)
+- fixed a bug that deleted the freshly downloaded characterfile while loading the charfile (yes, I was confused as well)
+- after the Post of the metadata, now the actual file is uploaded as well in the SINnersBasic-Tab
+- added a check, if a character is already uploaded before enabling the "open group dialog"-button
+- Runtime now allows (or should allow) code from remote sources (plugin-dlls are not loaded otherwise under Windows-UAC)
+- Globaloptions now saves which plugins are enabled in the registry
 - Changing the URL of the Chummerhub-Repository in the options no longer crashes the program.
 - refractored the CharacterTreeNodes, to support Groups in the frmCharacterRoster (not finished yet)
 - hopefully fixed a IndexOutOfRangeException, that would occur when saving the options from the sinner-optionsdialog.

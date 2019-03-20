@@ -15,6 +15,7 @@ using SINners;
 using System.Net;
 using SINners.Models;
 using ChummerHub.Client.Backend;
+using Chummer.Plugins;
 
 namespace ChummerHub.Client.UI
 {
@@ -35,61 +36,102 @@ namespace ChummerHub.Client.UI
         private void SINnersBasicConstructor(SINnersUserControl parent)
         {
             InitializeComponent();
+            this.Name = "SINnersBasic";
+            this.bGroupSearch.Enabled = false;
             this.AutoSize = true;
             myUC = parent;
             myUC.MyCE = parent.MyCE;
-            CheckSINnerStatus();
+            CheckSINnerStatus().ContinueWith(a =>
+            {
+                if (!a.Result)
+                {
+                    System.Diagnostics.Trace.TraceError("somehow I couldn't check the onlinestatus of " +
+                                                        myUC.MyCE.MySINnerFile.Id);
+                }
+            });
         }
 
-        private async void CheckSINnerStatus()
+        public async Task<bool> CheckSINnerStatus()
         {
+        
             try
             {
                 if ((myUC?.MyCE?.MySINnerFile?.Id == null) || (myUC.MyCE.MySINnerFile.Id == Guid.Empty))
                 {
-                    this.bUpload.Text = "SINless Character/Error";
-                    return;
-                }
-                var response = await StaticUtils.Client.GetSINByIdWithHttpMessagesAsync(myUC.MyCE.MySINnerFile.Id.Value);
-                if (response.Response.StatusCode == HttpStatusCode.OK)
-                {
-                    myUC.MyCE.SetSINner(response.Body);
-                    this.bUpload.Text = "Remove from SINners";
-                }
-                else
-                {
-                    this.bUpload.Text = "Upload to SINners";
-                }
-                this.cbTagArchetype.Enabled = false;
-                this.tbArchetypeName.Enabled = false;
-                var resroles = await StaticUtils.Client.GetRolesWithHttpMessagesAsync();
-                if(response.Response.StatusCode == HttpStatusCode.OK)
-                {
-                    var archetypeseq = from a in resroles.Body where a.ToLowerInvariant() == "ArchetypeAdmin".ToLowerInvariant() select a;
-                    if (archetypeseq.Any())
+                    PluginHandler.MainForm.DoThreadSafe(() =>
                     {
-                        this.cbTagArchetype.Enabled = true;
-                        this.tbArchetypeName.Enabled = true;
-                    }
+
+                        this.bUpload.Text = "SINless Character/Error";
+
+                    });
+                    return false;
                 }
-                if(myUC?.MyCE?.MySINnerFile?.MyGroup != null)
-                    this.lGourpForSinner.Text = myUC.MyCE.MySINnerFile.MyGroup.Groupname;
 
+                var response = await StaticUtils.Client.GetSINByIdWithHttpMessagesAsync(myUC.MyCE.MySINnerFile.Id.Value);
+                PluginHandler.MainForm.DoThreadSafe(() =>
+                {
+                    if (response.Response.StatusCode == HttpStatusCode.OK)
+                    {
+                        myUC.MyCE.SetSINner(response.Body);
+                        this.bUpload.Text = "Remove from SINners";
+                        this.bGroupSearch.Enabled = true;
+                        this.lUploadStatus.Text = "online";
+                        this.bUpload.Enabled = true;
+                    }
+                    else if (response.Response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        this.lUploadStatus.Text = "not online";
+                        this.bGroupSearch.Enabled = false;
+                        this.bGroupSearch.SetToolTip("SINner needs to be uploaded first, before he/she can join a group.");
+                        this.bUpload.Enabled = true;
+                        this.bUpload.Text = "Upload";
+                    }
+                    else
+                    {
+                        this.lUploadStatus.Text = "Statuscode: " + response.Response.StatusCode;
+                        this.bGroupSearch.Enabled = false;
+                        this.bGroupSearch.SetToolTip("SINner needs to be uploaded first, before he/she can join a group.");
+                        this.bUpload.Text = "Upload";
+                        this.bUpload.Enabled = true;
+                    }
+                    this.cbTagArchetype.Enabled = false;
+                    this.tbArchetypeName.Enabled = false;
+                });
+                var resroles = await StaticUtils.Client.GetRolesWithHttpMessagesAsync();
+                PluginHandler.MainForm.DoThreadSafe(() =>
+                {
+                    if (response.Response.StatusCode == HttpStatusCode.OK)
+                    {
+                        var archetypeseq = from a in resroles.Body where a.ToLowerInvariant() == "ArchetypeAdmin".ToLowerInvariant() select a;
+                        if (archetypeseq.Any())
+                        {
+                            this.cbTagArchetype.Enabled = true;
+                            this.tbArchetypeName.Enabled = true;
+                        }
+                    }
 
+                    if (myUC?.MyCE?.MySINnerFile?.MyGroup != null)
+                        this.lGourpForSinner.Text = myUC.MyCE.MySINnerFile.MyGroup.Groupname;
+                });
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError(ex.ToString());
-                this.bUpload.Text = "unknown Status";
+                PluginHandler.MainForm.DoThreadSafe(() =>
+                {
+                    this.bUpload.Text = "unknown Status";
+                });
+                return false;
             }
+            return true;
         }
 
         private void cbSRMReady_Click(object sender, EventArgs e)
         {
             
-            var tagseq = from a in myUC.MyCE.MySINnerFile.SiNnerMetaData.Tags
+            var tagseq = (from a in myUC.MyCE.MySINnerFile.SiNnerMetaData.Tags
                          where a.TagName == "SRM_ready"
-                         select a;
+                         select a).ToList();
             if (cbSRMReady.Checked == true)
             {
                 
@@ -120,25 +162,48 @@ namespace ChummerHub.Client.UI
 
         private async void bUpload_Click(object sender, EventArgs e)
         {
-            if (bUpload.Text.Contains("Upload"))
-                await ChummerHub.Client.Backend.Utils.PostSINnerAsync(myUC.MyCE);
-            else
-                await myUC.RemoveSINnerAsync();
-            CheckSINnerStatus();
+            using (new CursorWait(true, this))
+            {
+                try
+                {
+                    if (bUpload.Text.Contains("Upload"))
+                    {
+                        this.lUploadStatus.Text = "uploading";
+                        await myUC.MyCE.Upload();
+                    }
+                    else
+                    {
+                        this.lUploadStatus.Text = "removing";
+                        await myUC.RemoveSINnerAsync();
+                    }
+
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show(exception.Message);
+                }
+            }
+            await CheckSINnerStatus();
+
+
         }
 
         private void bGroupSearch_Click(object sender, EventArgs e)
         {
             frmSINnerGroupSearch gs = new frmSINnerGroupSearch(myUC.MyCE);
+            gs.MySINnerGroupSearch.OnGroupJoinCallback += (o, group) =>
+            {
+                PluginHandler.MainForm.CharacterRoster.LoadCharacters(false, false, false, true);
+            };
             var res = gs.ShowDialog();
             
         }
 
         private void cbTagArchetype_Click(object sender, EventArgs e)
         {
-            var tagseq = from a in myUC.MyCE.MySINnerFile.SiNnerMetaData.Tags
+            var tagseq = (from a in myUC.MyCE.MySINnerFile.SiNnerMetaData.Tags
                          where a.TagName == "Archetype"
-                         select a;
+                         select a).ToList();
             if(cbSRMReady.Checked == true)
             {
                 if(!tagseq.Any())

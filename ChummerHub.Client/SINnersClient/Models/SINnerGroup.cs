@@ -21,19 +21,29 @@ namespace SINners.Models
         /// <summary>
         /// Initializes a new instance of the SINnerGroup class.
         /// </summary>
-        public SINnerGroup(Guid? id = default(Guid?), bool? isPublic = default(bool?), string gameMasterUsername = default(string), SINnerGroupSetting mySettings = default(SINnerGroupSetting), string groupname = default(string))
+        public SINnerGroup(Guid? id = default(Guid?), Guid? myParentGroupId = default(Guid?), bool? isPublic = default(bool?), string gameMasterUsername = default(string), SINnerGroupSetting mySettings = default(SINnerGroupSetting), string groupname = default(string), string language = default(string), IList<SINnerGroup> myGroups = default(IList<SINnerGroup>), SINnerGroup myParentGroup = default(SINnerGroup), string myAdminIdentityRole = default(string))
         {
             Id = id;
+            MyParentGroupId = myParentGroupId;
             IsPublic = isPublic;
             GameMasterUsername = gameMasterUsername;
             MySettings = mySettings;
             Groupname = groupname;
+            Language = language;
+            MyGroups = myGroups;
+            MyParentGroup = myParentGroup;
+            MyAdminIdentityRole = myAdminIdentityRole;
         }
 
         /// <summary>
         /// </summary>
         [JsonProperty(PropertyName = "id")]
         public Guid? Id { get; set; }
+
+        /// <summary>
+        /// </summary>
+        [JsonProperty(PropertyName = "myParentGroupId")]
+        public Guid? MyParentGroupId { get; set; }
 
         /// <summary>
         /// </summary>
@@ -55,5 +65,67 @@ namespace SINners.Models
         [JsonProperty(PropertyName = "groupname")]
         public string Groupname { get; set; }
 
+        /// <summary>
+        /// </summary>
+        [JsonProperty(PropertyName = "language")]
+        public string Language { get; set; }
+
+        /// <summary>
+        /// </summary>
+        [JsonProperty(PropertyName = "myGroups")]
+        public IList<SINnerGroup> MyGroups { get; set; }
+
+        /// <summary>
+        /// </summary>
+        [JsonProperty(PropertyName = "myParentGroup")]
+        public SINnerGroup MyParentGroup { get; set; }
+
+        /// <summary>
+        /// Only users of the specified Role can join this group
+        /// </summary>
+        [JsonProperty(PropertyName = "myAdminIdentityRole")]
+        public string MyAdminIdentityRole { get; set; }
+
+        /// <summary>
+        /// Validate the object. Throws ValidationException if validation fails.
+        /// </summary>
+        public virtual void Validate()
+        {
+            if (this.Groupname != null)
+            {
+                if (this.Groupname.Length > 64)
+                {
+                    throw new ValidationException(ValidationRules.MaxLength, "Groupname", 64);
+                }
+            }
+            if (this.Language != null)
+            {
+                if (this.Language.Length > 6)
+                {
+                    throw new ValidationException(ValidationRules.MaxLength, "Language", 6);
+                }
+            }
+            if (this.MyGroups != null)
+            {
+                foreach (var element in this.MyGroups)
+                {
+                    if (element != null)
+                    {
+                        element.Validate();
+                    }
+                }
+            }
+            if (this.MyParentGroup != null)
+            {
+                this.MyParentGroup.Validate();
+            }
+            if (this.MyAdminIdentityRole != null)
+            {
+                if (this.MyAdminIdentityRole.Length > 64)
+                {
+                    throw new ValidationException(ValidationRules.MaxLength, "MyAdminIdentityRole", 64);
+                }
+            }
+        }
     }
 }
