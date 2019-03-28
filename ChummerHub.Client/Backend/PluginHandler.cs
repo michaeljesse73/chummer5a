@@ -268,12 +268,14 @@ namespace Chummer.Plugins
         public void CustomInitialize(frmChummerMain mainControl)
         {
             MainForm = mainControl;
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             {
                 try
                 {
-                    var res = StaticUtils.Client.GetRolesWithHttpMessagesAsync().Result;
-                    StaticUtils.UserRoles = res.Body.ToList();
+                    var client = await StaticUtils.GetClient();
+                    var res = await client?.GetRolesWithHttpMessagesAsync();
+                    if (res != null)
+                        StaticUtils.UserRoles = res.Body.ToList();
                 }
                 catch(Exception e)
                 {
