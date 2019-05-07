@@ -174,6 +174,7 @@ namespace Chummer
         private static string _strDefaultCharacterSheet = DefaultCharacterSheetDefaultValue;
         private static bool _blnDatesIncludeTime = true;
         private static bool _blnPrintToFileFirst;
+        private static int _intEmulatedBrowserVersion = 8;
         private static bool _lifeModuleEnabled;
         private static bool _blnDronemods;
         private static bool _blnDronemodsMaximumPilot;
@@ -182,6 +183,7 @@ namespace Chummer
         private static bool _blnHideCharacterRoster;
         private static bool _blnCreateBackupOnCareer;
         private static bool _blnPluginsEnabled;
+        private static bool _blnAllowEasterEggs;
         private static string _strDefaultBuildMethod = DefaultBuildMethodDefaultValue;
         private static string _strDefaultGameplayOption = DefaultGameplayOptionDefaultValue;
 
@@ -406,6 +408,9 @@ namespace Chummer
             // Whether or not printouts should be sent to a file before loading them in the browser. This is a fix for getting printing to work properly on Linux using Wine.
             LoadBoolFromRegistry(ref _blnPrintToFileFirst, "printtofilefirst");
 
+            // Which version of the Internet Explorer's rendering engine will be emulated for rendering the character view.
+            LoadInt32FromRegistry(ref _intEmulatedBrowserVersion, "emulatedbrowserversion");
+
             // Default character sheet.
             LoadStringFromRegistry(ref _strDefaultCharacterSheet, "defaultsheet");
             if(_strDefaultCharacterSheet == "Shadowrun (Rating greater 0)")
@@ -414,6 +419,8 @@ namespace Chummer
             LoadStringFromRegistry(ref _strDefaultBuildMethod, "defaultbuildmethod");
 
             LoadStringFromRegistry(ref _strDefaultGameplayOption, "defaultgameplayoption");
+
+            LoadBoolFromRegistry(ref _blnAllowEasterEggs, "alloweastereggs");
 
             // Omae Settings.
             // Username.
@@ -535,6 +542,15 @@ namespace Chummer
         }
 
         /// <summary>
+        /// Should Chummer present Easter Eggs to the user?
+        /// </summary>
+        public static bool AllowEasterEggs
+        {
+            get => _blnAllowEasterEggs;
+            set => _blnAllowEasterEggs = value;
+        }
+
+        /// <summary>
         /// Whether or not the Character Roster should be shown. If true, prevents the roster from being removed or hidden. 
         /// </summary>
         public static bool HideCharacterRoster
@@ -619,6 +635,15 @@ namespace Chummer
         {
             get => _blnPrintToFileFirst;
             set => _blnPrintToFileFirst = value;
+        }
+
+        /// <summary>
+        /// Which version of the Internet Explorer's rendering engine will be emulated for rendering the character view. Defaults to 8
+        /// </summary>
+        public static int EmulatedBrowserVersion
+        {
+            get => _intEmulatedBrowserVersion;
+            set => _intEmulatedBrowserVersion = value;
         }
 
         /// <summary>
@@ -770,6 +795,7 @@ namespace Chummer
             get => _strPDFParameters;
             set => _strPDFParameters = value;
         }
+
         /// <summary>
         /// List of SourcebookInfo.
         /// </summary>

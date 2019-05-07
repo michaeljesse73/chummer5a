@@ -44,6 +44,8 @@ namespace Chummer.Plugins
 
         public void Initialize()
         {
+            if (GlobalOptions.PluginsEnabled == false)
+                return;
             catalog = new AggregateCatalog();
             catalog.Catalogs.Add(new DirectoryCatalog(path: "Plugins", searchPattern: "*.exe"));
             catalog.Catalogs.Add(new DirectoryCatalog(path: "Plugins", searchPattern: "*.dll"));
@@ -52,7 +54,7 @@ namespace Chummer.Plugins
           
             StartWatch();
             container.ComposeParts(this);
-            foreach (var plugin in MyPlugins)
+            foreach (var plugin in MyActivePlugins)
             {
                 try
                 {

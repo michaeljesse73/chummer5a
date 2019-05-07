@@ -15,16 +15,19 @@ namespace ChummerHub.Client.UI
     public partial class frmSINnerGroupSearch : Form
     {
         private CharacterExtended MyCE { get; }
+        public ucSINnersBasic MyParentForm { get; }
 
-        public SINnerGroupSearch MySINnerGroupSearch
+        public ucSINnerGroupSearch MySINnerGroupSearch
         {
             get { return this.siNnerGroupSearch1; }
         }
-        public frmSINnerGroupSearch(CharacterExtended ce)
+        public frmSINnerGroupSearch(CharacterExtended ce, ucSINnersBasic parentBasic)
         {
             MyCE = ce;
+            MyParentForm = parentBasic;
             InitializeComponent();
             this.siNnerGroupSearch1.MyCE = ce;
+            this.siNnerGroupSearch1.MyParentForm = this;
         }
     }
 }
