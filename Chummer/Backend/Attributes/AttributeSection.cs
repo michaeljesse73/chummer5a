@@ -30,6 +30,7 @@ using Chummer.Annotations;
 
 namespace Chummer.Backend.Attributes
 {
+    
 	public class AttributeSection : INotifyMultiplePropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -67,7 +68,9 @@ namespace Chummer.Backend.Attributes
             new DependancyGraph<string>(
             );
 
-        private static readonly string[] s_LstAttributeStrings = { "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL", "EDG", "MAG", "MAGAdept", "RES", "ESS", "DEP" };
+        public ObservableCollection<CharacterAttrib> Attributes { get; set; }
+
+	    private static readonly string[] s_LstAttributeStrings = { "BOD", "AGI", "REA", "STR", "CHA", "INT", "LOG", "WIL", "EDG", "MAG", "MAGAdept", "RES", "ESS", "DEP" };
         public static ReadOnlyCollection<string> AttributeStrings => Array.AsReadOnly(s_LstAttributeStrings);
 
 	    private static readonly string[] s_LstPhysicalAttributes = { "BOD", "AGI", "REA", "STR" };
@@ -117,11 +120,11 @@ namespace Chummer.Backend.Attributes
 		private readonly Character _objCharacter;
 		private CharacterAttrib.AttributeCategory _eAttributeCategory = CharacterAttrib.AttributeCategory.Standard;
 
-        #region Constructor, Save, Load, Print Methods
+	    #region Constructor, Save, Load, Print Methods
         public AttributeSection(Character character)
 		{
 			_objCharacter = character;
-		}
+        }
 
 		private void BuildBindingList()
 		{
@@ -153,6 +156,76 @@ namespace Chummer.Backend.Attributes
 			}
 		}
 
+	    public void Create(XmlNode charNode, int intValue, int intMinModifier = 0, int intMaxModifier = 0)
+        {
+            Timekeeper.Start("create_char_attrib");
+            foreach (CharacterAttrib objAttribute in AttributeList.Concat(SpecialAttributeList))
+                objAttribute.UnbindAttribute();
+            AttributeList.Clear();
+            SpecialAttributeList.Clear();
+
+            foreach (string strAttribute in AttributeStrings)
+            {
+                CharacterAttrib objAttribute;
+                switch (CharacterAttrib.ConvertToAttributeCategory(strAttribute))
+                {
+                    case CharacterAttrib.AttributeCategory.Special:
+                        objAttribute = new CharacterAttrib(_objCharacter, strAttribute, CharacterAttrib.AttributeCategory.Special);
+                        SpecialAttributeList.Add(objAttribute);
+                        break;
+                    case CharacterAttrib.AttributeCategory.Standard:
+                        objAttribute = new CharacterAttrib(_objCharacter, strAttribute);
+                        AttributeList.Add(objAttribute);
+                        break;
+                }
+            }
+
+            _objCharacter.BOD.AssignLimits(CommonFunctions.ExpressionToString(charNode["bodmin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["bodmax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["bodaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.AGI.AssignLimits(CommonFunctions.ExpressionToString(charNode["agimin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["agimax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["agiaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.REA.AssignLimits(CommonFunctions.ExpressionToString(charNode["reamin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["reamax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["reaaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.STR.AssignLimits(CommonFunctions.ExpressionToString(charNode["strmin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["strmax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["straug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.CHA.AssignLimits(CommonFunctions.ExpressionToString(charNode["chamin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["chamax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["chaaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.INT.AssignLimits(CommonFunctions.ExpressionToString(charNode["intmin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["intmax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["intaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.LOG.AssignLimits(CommonFunctions.ExpressionToString(charNode["logmin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["logmax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["logaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.WIL.AssignLimits(CommonFunctions.ExpressionToString(charNode["wilmin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["wilmax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["wilaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.MAG.AssignLimits(CommonFunctions.ExpressionToString(charNode["magmin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["magmax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["magaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.RES.AssignLimits(CommonFunctions.ExpressionToString(charNode["resmin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["resmax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["resaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.EDG.AssignLimits(CommonFunctions.ExpressionToString(charNode["edgmin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["edgmax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["edgaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.DEP.AssignLimits(CommonFunctions.ExpressionToString(charNode["depmin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["depmax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["depaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.MAGAdept.AssignLimits(CommonFunctions.ExpressionToString(charNode["magmin"]?.InnerText, intValue, intMinModifier), CommonFunctions.ExpressionToString(charNode["magmax"]?.InnerText, intValue, intMaxModifier), CommonFunctions.ExpressionToString(charNode["magaug"]?.InnerText, intValue, intMaxModifier));
+            _objCharacter.ESS.AssignLimits(CommonFunctions.ExpressionToString(charNode["essmin"]?.InnerText, intValue, 0), CommonFunctions.ExpressionToString(charNode["essmax"]?.InnerText, intValue, 0), CommonFunctions.ExpressionToString(charNode["essaug"]?.InnerText, intValue, 0));
+
+            Attributes = new ObservableCollection<CharacterAttrib>
+            {
+                _objCharacter.BOD,
+                _objCharacter.AGI,
+                _objCharacter.REA,
+                _objCharacter.STR,
+                _objCharacter.CHA,
+                _objCharacter.INT,
+                _objCharacter.LOG,
+                _objCharacter.WIL,
+                _objCharacter.EDG
+            };
+            if (_objCharacter.MAGEnabled)
+            {
+                Attributes.Add(_objCharacter.MAG);
+                if (_objCharacter.Options.MysAdeptSecondMAGAttribute && _objCharacter.IsMysticAdept)
+                    Attributes.Add(_objCharacter.MAGAdept);
+            }
+            if (_objCharacter.RESEnabled)
+            {
+                Attributes.Add(_objCharacter.RES);
+            }
+            if (_objCharacter.DEPEnabled)
+            {
+                Attributes.Add(_objCharacter.DEP);
+            }
+            ResetBindings();
+            _objCharacter.RefreshAttributeBindings();
+            Timekeeper.Finish("create_char_attrib");
+        }
+
 		public void Load(XmlNode xmlSavedCharacterNode)
 		{
 			Timekeeper.Start("load_char_attrib");
@@ -171,8 +244,24 @@ namespace Chummer.Backend.Attributes
                 // Couldn't find the appopriate attribute in the loaded file, so regenerate it from scratch.
                 if (lstAttributeNodes == null || lstAttributeNodes.Count == 0 || xmlCharNodeAnimalForm != null && _objCharacter.LastSavedVersion < new Version("5.200.25"))
                 {
-                    CharacterAttrib objAttribute = new CharacterAttrib(_objCharacter, strAttribute);
-                    objAttribute = RemakeAttribute(objAttribute, xmlCharNode);
+                    CharacterAttrib objAttribute;
+                    switch (CharacterAttrib.ConvertToAttributeCategory(strAttribute))
+                    {
+                        case CharacterAttrib.AttributeCategory.Special:
+                            objAttribute = new CharacterAttrib(_objCharacter, strAttribute, CharacterAttrib.AttributeCategory.Special);
+                            objAttribute = RemakeAttribute(objAttribute, xmlCharNode);
+                            SpecialAttributeList.Add(objAttribute);
+                            break;
+                        case CharacterAttrib.AttributeCategory.Standard:
+                            objAttribute = new CharacterAttrib(_objCharacter, strAttribute);
+                            objAttribute = RemakeAttribute(objAttribute, xmlCharNode);
+                            AttributeList.Add(objAttribute);
+                            break;
+                    }
+
+                    if (xmlCharNodeAnimalForm == null) continue;
+                    objAttribute = new CharacterAttrib(_objCharacter, strAttribute, CharacterAttrib.AttributeCategory.Shapeshifter);
+                    objAttribute = RemakeAttribute(objAttribute, xmlCharNodeAnimalForm);
                     switch (CharacterAttrib.ConvertToAttributeCategory(objAttribute.Abbrev))
                     {
                         case CharacterAttrib.AttributeCategory.Special:
@@ -181,20 +270,6 @@ namespace Chummer.Backend.Attributes
                         case CharacterAttrib.AttributeCategory.Standard:
                             AttributeList.Add(objAttribute);
                             break;
-                    }
-                    if (xmlCharNodeAnimalForm != null)
-                    {
-                        objAttribute = new CharacterAttrib(_objCharacter, strAttribute, CharacterAttrib.AttributeCategory.Shapeshifter);
-                        objAttribute = RemakeAttribute(objAttribute, xmlCharNodeAnimalForm);
-                        switch (CharacterAttrib.ConvertToAttributeCategory(objAttribute.Abbrev))
-                        {
-                            case CharacterAttrib.AttributeCategory.Special:
-                                SpecialAttributeList.Add(objAttribute);
-                                break;
-                            case CharacterAttrib.AttributeCategory.Standard:
-                                AttributeList.Add(objAttribute);
-                                break;
-                        }
                     }
                 }
                 else
@@ -215,8 +290,36 @@ namespace Chummer.Backend.Attributes
                     }
                 }
             }
+
+		    Attributes = new ObservableCollection<CharacterAttrib>
+		    {
+		        _objCharacter.BOD,
+		        _objCharacter.AGI,
+		        _objCharacter.REA,
+		        _objCharacter.STR,
+		        _objCharacter.CHA,
+		        _objCharacter.INT,
+		        _objCharacter.LOG,
+		        _objCharacter.WIL,
+		        _objCharacter.EDG
+		    };
+		    if (_objCharacter.MAGEnabled)
+		    {
+		        Attributes.Add(_objCharacter.MAG);
+		        if (_objCharacter.Options.MysAdeptSecondMAGAttribute && _objCharacter.IsMysticAdept)
+		            Attributes.Add(_objCharacter.MAGAdept);
+		    }
+		    if (_objCharacter.RESEnabled)
+		    {
+		        Attributes.Add(_objCharacter.RES);
+		    }
+		    if (_objCharacter.DEPEnabled)
+		    {
+		        Attributes.Add(_objCharacter.DEP);
+		    }
             ResetBindings();
-			Timekeeper.Finish("load_char_attrib");
+		    _objCharacter.RefreshAttributeBindings();
+            Timekeeper.Finish("load_char_attrib");
 		}
 
 	    public void LoadFromHeroLab(XmlNode xmlStatBlockBaseNode)
@@ -396,6 +499,7 @@ namespace Chummer.Backend.Attributes
                 }
             }
             ResetBindings();
+            _objCharacter.RefreshAttributeBindings();
             Timekeeper.Finish("load_char_attrib");
         }
 
@@ -525,16 +629,18 @@ namespace Chummer.Backend.Attributes
 			SpecialAttributeList.Clear();
 			foreach (string strAttribute in AttributeStrings)
 			{
-				CharacterAttrib objAttribute = new CharacterAttrib(_objCharacter, strAttribute);
-				switch (CharacterAttrib.ConvertToAttributeCategory(objAttribute.Abbrev))
+			    CharacterAttrib objAttribute;
+				switch (CharacterAttrib.ConvertToAttributeCategory(strAttribute))
 				{
-					case CharacterAttrib.AttributeCategory.Special:
-						SpecialAttributeList.Add(objAttribute);
-						break;
-					case CharacterAttrib.AttributeCategory.Standard:
-						AttributeList.Add(objAttribute);
-						break;
-				}
+				    case CharacterAttrib.AttributeCategory.Special:
+				        objAttribute = new CharacterAttrib(_objCharacter, strAttribute, CharacterAttrib.AttributeCategory.Special);
+				        SpecialAttributeList.Add(objAttribute);
+				        break;
+				    case CharacterAttrib.AttributeCategory.Standard:
+				        objAttribute = new CharacterAttrib(_objCharacter, strAttribute);
+				        AttributeList.Add(objAttribute);
+				        break;
+                }
 			}
 			BuildBindingList();
 		}
@@ -565,29 +671,29 @@ namespace Chummer.Backend.Attributes
                 objBindingEntry.Value.DataSource = GetAttributeByName(objBindingEntry.Key);
             }
 		}
-		#endregion
+        #endregion
 
-		#region Properties
-		/// <summary>
-		/// Character's Attributes.
-		/// </summary>
-		public IList<CharacterAttrib> AttributeList { get; } = new List<CharacterAttrib>();
+        #region Properties
+        /// <summary>
+        /// Character's Attributes.
+        /// </summary>
+        [HubTag(true)]
+        public List<CharacterAttrib> AttributeList { get; } = new List<CharacterAttrib>();
 
-	    /// <summary>
-		/// Character's Attributes.
-		/// </summary>
-		public IList<CharacterAttrib> SpecialAttributeList { get; } = new List<CharacterAttrib>();
+        /// <summary>
+        /// Character's Attributes.
+        /// </summary>
+        [HubTag(true)]
+        public List<CharacterAttrib> SpecialAttributeList { get; } = new List<CharacterAttrib>();
 
 	    public CharacterAttrib.AttributeCategory AttributeCategory
 	    {
 	        get => _eAttributeCategory;
 	        set
 	        {
-	            if (_eAttributeCategory != value)
-	            {
-	                _eAttributeCategory = value;
-	                OnPropertyChanged();
-	            }
+	            if (_eAttributeCategory == value) return;
+	            _eAttributeCategory = value;
+	            OnPropertyChanged();
 	        }
 	    }
         #endregion

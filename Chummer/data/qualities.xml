@@ -389,6 +389,7 @@
         <oneof>
           <quality>Adept</quality>
           <quality>Aspected Magician</quality>
+          <quality>Aware</quality>
           <quality>Enchanter</quality>
           <quality>Explorer</quality>
           <quality>Apprentice</quality>
@@ -2658,6 +2659,7 @@
       </bonus>
       <required>
         <oneof>
+          <gear minrating="4">Fake SIN</gear>
           <quality>SINner (Criminal)</quality>
           <quality>SINner (National)</quality>
           <quality>SINner (Corporate Limited)</quality>
@@ -2924,7 +2926,6 @@
           <free />
           <group />
           <forcegroup />
-          <canwrite />
         </addcontact>
       </bonus>
       <source>RF</source>
@@ -3826,8 +3827,8 @@
       <limit>15</limit>
       <bonus>
         <nuyenamt>5000</nuyenamt>
+        <nuyenmaxbp>-1</nuyenmaxbp>
       </bonus>
-
       <source>RF</source>
       <page>156</page>
     </quality>
@@ -5081,7 +5082,7 @@
     <quality>
       <id>bfb6b16b-d2b1-4b28-af37-e011d016da37</id>
       <name>Dermal Alteration (Rhino Hide)</name>
-      <karma>7</karma>
+      <karma>8</karma>
       <category>Positive</category>
       <metagenetic>True</metagenetic>
       <bonus>
@@ -5292,7 +5293,7 @@
     <quality>
       <id>c724871b-6ae9-43fe-a0ae-83b0afcd4123</id>
       <name>Functional Tail (Prehensile)</name>
-      <karma>7</karma>
+      <karma>6</karma>
       <category>Positive</category>
       <metagenetic>True</metagenetic>
       <bonus>
@@ -10262,7 +10263,6 @@
       <name>Infected Optional Power: Armor</name>
       <karma>6</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <limit>False</limit>
       <bonus>
@@ -10286,7 +10286,6 @@
       <name>Infected Optional Power: Compulsion</name>
       <karma>9</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10311,7 +10310,6 @@
       <name>Infected Optional Power: Enhanced Sense (Hearing)</name>
       <karma>3</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10339,7 +10337,6 @@
       <name>Infected Optional Power: Enhanced Sense (Low-Light Vision)</name>
       <karma>3</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10360,7 +10357,6 @@
       <name>Infected Optional Power: Enhanced Sense (Smell)</name>
       <karma>3</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10386,7 +10382,6 @@
       <name>Infected Optional Power: Enhanced Sense (Taste)</name>
       <karma>3</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10406,7 +10401,6 @@
       <name>Infected Optional Power: Enhanced Sense (Thermographic Vision)</name>
       <karma>3</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10430,7 +10424,6 @@
       <name>Infected Optional Power: Enhanced Sense (Visual Acuity)</name>
       <karma>3</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10450,7 +10443,6 @@
       <name>Infected Optional Power: Fear</name>
       <karma>9</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10478,7 +10470,6 @@
       <name>Infected Optional Power: Immunity (Fire)</name>
       <karma>6</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10498,7 +10489,6 @@
       <name>Infected Optional Power: Immunity (Pathogens)</name>
       <karma>6</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10524,7 +10514,6 @@
       <name>Infected Optional Power: Immunity (Toxins)</name>
       <karma>6</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10553,7 +10542,6 @@
       <name>Infected Optional Power: Influence</name>
       <karma>9</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10579,7 +10567,6 @@
       <name>Infected Optional Power: Magical Guard</name>
       <karma>9</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10605,7 +10592,6 @@
       <name>Infected Optional Power: Mist Form</name>
       <karma>12</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10629,7 +10615,6 @@
       <name>Infected Optional Power: Paralyzing Howl</name>
       <karma>9</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -10654,7 +10639,6 @@
       <name>Infected Optional Power: Regeneration</name>
       <karma>12</karma>
       <category>Positive</category>
-      <chargenlimit>0</chargenlimit>
       <doublecareer>False</doublecareer>
       <bonus>
         <critterpowers>
@@ -12806,6 +12790,1001 @@
     </quality>
     <!-- End Region -->
     <!-- End Region -->
+    <!-- Region Dark Terrors -->
+    <quality>
+      <id>e59e5011-61be-44d8-be87-8924555956cb</id>
+      <name>Free Insect Spirit: Cutter Ant</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+        <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>61008635-56be-4a0f-885e-c69cdad6381c</id>
+      <name>Free Insect Spirit: Fire Ant</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+        <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>128a7a7d-7bd2-400c-a388-fd444672cc07</id>
+      <name>Free Insect Spirit: Desert Locust</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+          <power select="Fire">Immunity</power>
+          <power select="Cold">Vulnerability</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>791a36c5-3fff-447e-bf47-ae5c186d5e00</id>
+      <name>Free Insect Spirit: Mole Cricket</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+        <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <movementreplace>
+          <category>Fly</category>
+          <speed>walk</speed>
+          <val>3</val>
+        </movementreplace>
+        <movementreplace>
+          <category>Fly</category>
+          <speed>run</speed>
+          <val>6</val>
+        </movementreplace>
+        <movementreplace>
+          <category>Fly</category>
+          <speed>sprint</speed>
+          <val>500</val>
+        </movementreplace>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>64cd8760-41ac-4280-a1bb-ccbe470cb36a</id>
+      <name>Free Insect Spirit: Subterranean Termite</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power select="Blind">Reduced Sense</power>
+        </critterpowers>
+		<damageresistance>2</damageresistance>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>3c7f9965-3cf9-4d18-92cd-00b07d18bd96</id>
+      <name>Free Insect Spirit: Hunter Wasp</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+        <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>b18aa02f-5259-43ce-9f42-108d4cee192c</id>
+      <name>Free Insect Spirit: Bee</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+        <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>f6f960ff-f4eb-48ac-ab6e-95e73f523777</id>
+      <name>Free Insect Spirit: Goliath Beetle</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+        <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+		<damageresistance>4</damageresistance>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>a752d652-d59b-4bc5-89b4-3a4d2cf763cb</id>
+      <name>Free Insect Spirit: Water Beetle</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+        <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>a2680005-2e89-4054-8941-91ac53cde39d</id>
+      <name>Free Insect Spirit: House Centipede</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+		  <power select="Self Only">Movement</power>
+        <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>8726c88b-0c03-41c9-b67c-c0bd8b8f7547</id>
+      <name>Free Insect Spirit: Tropical Centipede</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+		  <power select="Self Only">Movement</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power>Venom</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>7c99a5ee-a98a-429c-a27a-dd007ba9f680</id>
+      <name>Free Insect Spirit: Century Cicada</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power select="Queen's Command">Induced Dormancy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>e55ea45c-c1c2-47cb-91f3-528683d58c49</id>
+      <name>Free Insect Spirit: Trapdoor Spider</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power>Binding</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>218a86f5-e292-418d-a3f6-fdb1b9ce5891</id>
+      <name>Free Insect Spirit: Black Widow</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power>Binding</power>
+		  <power>Wall Walking</power>
+		  <power>Venom</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>578fedfb-a533-413c-ae88-4171cbbcf595</id>
+      <name>Free Insect Spirit: Burster Firefly</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power select="Mass Sight Removal">Innate Spell</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>75b52efb-39a2-471d-8c5a-94341eafb5df</id>
+      <name>Free Insect Spirit: Botfly</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>5be18c92-264a-48ea-8438-79adfffa88f5</id>
+      <name>Free Insect Spirit: Dragonfly</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power>Movement</power>
+		  <power>Dive Attack</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>0833bbaf-db69-4956-9ad6-1fa6c7674536</id>
+      <name>Free Insect Spirit: Mimic Mantis</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>b22312fc-ccfb-4ad2-ae79-9d988c2e5ad0</id>
+      <name>Free Insect Spirit: Orchid Mantis</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power>Empathy</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>bce09acf-46b8-4b27-af72-f2ed0909fd9c</id>
+      <name>Free Insect Spirit: Vampire Mosquito</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power>Essence Loss</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>2570b568-dea1-40b7-a9eb-dfab2e69fde7</id>
+      <name>Free Insect Spirit: Tick</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power>Essence Drain</power>
+		  <power>Pestilence</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>e1d20998-d6b8-4019-8b55-c3a66a6a239b</id>
+      <name>Free Insect Spirit: Death's Head Moth</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <movementreplace>
+          <category>Fly</category>
+          <speed>walk</speed>
+          <val>3</val>
+        </movementreplace>
+        <movementreplace>
+          <category>Fly</category>
+          <speed>run</speed>
+          <val>6</val>
+        </movementreplace>
+        <movementreplace>
+          <category>Fly</category>
+          <speed>sprint</speed>
+          <val>500</val>
+        </movementreplace>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>20543040-e552-4894-ba3b-f05eabcf58ab</id>
+      <name>Free Insect Spirit: Cryptid Moth</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+        </critterpowers>
+        <movementreplace>
+          <category>Fly</category>
+          <speed>walk</speed>
+          <val>3</val>
+        </movementreplace>
+        <movementreplace>
+          <category>Fly</category>
+          <speed>run</speed>
+          <val>6</val>
+        </movementreplace>
+        <movementreplace>
+          <category>Fly</category>
+          <speed>sprint</speed>
+          <val>500</val>
+        </movementreplace>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+		<power select="Foreboding">Innate Spell</power>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>f34b7ccf-5624-492a-938e-fd39a8887a54</id>
+      <name>Free Insect Spirit: Cave Roach</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power select="Blind">Reduced Sense</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <quality>
+      <id>fe67d03c-1394-41e0-a82a-532f5fe85d2e</id>
+      <name>Free Insect Spirit: Silverfish</name>
+      <karma>42</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <critterpowers>
+          <power>Dual Natured</power>
+          <power>Aura Masking</power>
+          <power select="Smell">Enhanced Senses</power>
+          <power select="Thermographic Vision">Enhanced Senses</power>
+          <power select="Normal Weapons">Immunity</power>
+          <power>Realistic Form</power>
+          <power select="Insecticides, Mild">Allergy</power>
+		  <power select="Sugar">Dietary Requirement</power>
+        </critterpowers>
+        <enableattribute>
+          <name>MAG</name>
+        </enableattribute>
+        <enabletab>
+          <name>critter</name>
+        </enabletab>
+        <skillgroupdisable>Conjuring</skillgroupdisable>
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </forbidden>
+      <required>
+        <oneof>
+          <gameplayoption>Prime Runner</gameplayoption>
+        </oneof>
+      </required>
+      <source>DTR</source>
+      <page>151</page>
+    </quality>
+    <!-- End Region -->
     <!-- Region Forbidden Arcana -->
     <!-- Region Mastery Qualities -->
     <quality>
@@ -13502,9 +14481,10 @@
         </spellcategorydrain>
       </bonus>
       <forbidden>
-        <oneof>
+        <allof>
           <quality>Adept</quality>
-        </oneof>
+          <quality>Mystic Adept</quality>
+        </allof>
       </forbidden>
       <required>
         <allof>
@@ -13521,7 +14501,7 @@
           <skill>
             <name>Spellcasting</name>
             <val>4</val>
-            <spec>Combat Spells</spec>
+            <spec>Combat</spec>
           </skill>
         </oneof>
       </required>
@@ -13555,10 +14535,11 @@
             <name>MAG</name>
             <total>1</total>
           </attribute>
-          <quality>Adept</quality>
+          <power>Critical Strike</power>
         </allof>
         <oneof>
-          <power>Critical Strike</power>
+          <quality>Adept</quality>
+          <quality>Mystic Adept</quality>
         </oneof>
       </required>
       <source>FA</source>
@@ -16287,6 +17268,26 @@
       <page>43</page>
     </quality>
     <!-- End Region -->
+    <!-- Region Mentor's Mask -->
+    <quality>
+      <id>bf68095e-35b9-49dc-a008-f67bbac9b83b</id>
+      <name>Mentor's Mask</name>
+      <karma>0</karma>
+      <category>Positive</category>
+      <contributetolimit>False</contributetolimit>
+      <bonus>
+        <adeptpowerpoints>1</adeptpowerpoints>
+        <drainvalue>-1</drainvalue>
+      </bonus>
+      <required>
+        <oneof>
+          <quality>Mentor Spirit</quality>
+        </oneof>
+      </required>
+      <source>FA</source>
+      <page>182</page>
+    </quality>
+    <!-- End Region -->
     <!-- End Region -->
     <!-- Region SotA ADL Negative Qualities-->
     <quality>
@@ -16354,7 +17355,8 @@
       <karma>5</karma>
       <category>Positive</category>
       <bonus>
-        <!--TODO: Implement flat cost reduction for specific lifestyle types. Scream internally at improvement naming conventions. -->
+        <lifestylecost lifestyle="Low">-50</lifestylecost>
+        <lifestylecost lifestyle="Squatter">-100</lifestylecost>
       </bonus>
       <required>
         <oneof>
@@ -17667,16 +18669,8 @@
           </replaceattribute>
         </replaceattributes>
       </bonus>
-      <forbidden>
-        <oneof>
-          <attributetotal>
-            <attributes>RES,MAG</attributes>
-            <val>1</val>
-          </attributetotal>
-        </oneof>
-      </forbidden>
       <source>BTB</source>
-      <page>160</page>
+      <page>139</page>
     </quality>
     <!-- End Region -->
     <!-- Region Positive -->
@@ -17734,7 +18728,7 @@
         </specificskill>
       </bonus>
       <source>BTB</source>
-      <page>161</page>
+      <page>139</page>
     </quality>
     <quality>
       <id>eb3b2334-29f3-4bd5-a9cc-817672b28d6e</id>
@@ -17760,14 +18754,20 @@
       <name>Prototype Materials</name>
       <karma>5</karma>
       <category>Positive</category>
+      <bonus>
+        <specialmodificationlimit>1</specialmodificationlimit>
+      </bonus>
       <forbidden>
         <oneof>
-          <attributetotal>
-            <attributes>RES,MAG</attributes>
-            <val>1</val>
-          </attributetotal>
+          <magenabled />
+          <resenabled />
         </oneof>
       </forbidden>
+      <required>
+        <oneof>
+          <quality>Special Modifications</quality>
+        </oneof>
+      </required>
       <source>BTB</source>
       <page>160</page>
     </quality>
@@ -17785,19 +18785,15 @@
       <karma>5</karma>
       <category>Positive</category>
       <limit>2</limit>
+      <bonus>
+        <specialmodificationlimit>1</specialmodificationlimit>
+      </bonus>
       <forbidden>
         <oneof>
-          <attributetotal>
-            <attributes>RES,MAG</attributes>
-            <val>1</val>
-          </attributetotal>
+          <magenabled />
+          <resenabled />
         </oneof>
       </forbidden>
-      <required>
-        <oneof>
-          <quality>Prototype Materials</quality>
-        </oneof>
-      </required>
       <source>BTB</source>
       <page>161</page>
     </quality>
@@ -17822,5 +18818,71 @@
     </quality>
     <!-- End Region -->
     <!-- End Region -->
+    <!-- Region No Future -->
+    <quality>
+      <id>7d1bedb9-5d27-419f-bc15-0a39d9b67516</id>
+      <name>Candle in the Darkness</name>
+      <karma>5</karma>
+      <category>Positive</category>
+      <bonus>
+        <!--<contactloyalty>2</contactloyalty>-->
+      </bonus>
+      <required>
+        <oneof>
+          <quality>Code of Honor</quality>
+          <quality>Code of Honor: Avenging Angel</quality>
+          <quality>Code of Honor: Black Hat</quality>
+          <quality>Code of Honor: Like a Boss</quality>
+        </oneof>
+      </required>
+      <source>NF</source>
+      <page>177</page>
+    </quality>
+    <quality>
+      <id>f8384574-ce99-4e33-8a94-b5aea7ddf4bd</id>
+      <name>Massive Network</name>
+      <karma>20</karma>
+      <category>Positive</category>
+      <bonus>
+          <!--<contactkarma>-2</contactkarma>-->
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Networker</quality>
+        </oneof>
+      </forbidden>
+      <source>NF</source>
+      <page>177</page>
+    </quality>
+    <quality>
+      <id>fc195df5-83f6-4aff-aca8-4287a56e4d4c</id>
+      <name>Networker</name>
+      <karma>5</karma>
+      <category>Positive</category>
+      <bonus>
+        <!--<contactkarma>-1</contactkarma>-->
+      </bonus>
+      <forbidden>
+        <oneof>
+          <quality>Massive Network</quality>
+        </oneof>
+      </forbidden>
+      <source>NF</source>
+      <page>177</page>
+    </quality>
+    <quality>
+      <id>8b18a3aa-fd5a-4712-8dd4-117d7a73ba11</id>
+      <name>Stolen Gear</name>
+      <karma>-1</karma>
+      <category>Negative</category>
+      <limit>20</limit>
+      <bonus>
+        <nuyenamt condition="Stolen">10000</nuyenamt>
+        <nuyenmaxbp>-1</nuyenmaxbp>
+      </bonus>
+      <source>NF</source>
+      <page>177</page>
+    </quality>
+      <!-- End Region -->
   </qualities>
 </chummer>

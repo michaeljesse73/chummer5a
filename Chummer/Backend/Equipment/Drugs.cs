@@ -30,9 +30,9 @@ using Chummer.Backend.Attributes;
 
 namespace Chummer.Backend.Equipment
 {
-    public class Drug : IHasName, IHasXmlNode
+    public class Drug : IHasName, IHasXmlNode, ICanSort, IHasStolenProperty
     {
-        private Guid _sourceID = Guid.Empty;
+        private Guid _guiSourceID = Guid.Empty;
         private Guid _guiID;
         private string _strName = "";
         private string _strCategory = "";
@@ -49,7 +49,9 @@ namespace Chummer.Backend.Equipment
         private int _intAddictionThreshold;
         private int _intAddictionRating;
         private decimal _decQty;
+        private int _intSortOrder;
         private readonly Character _objCharacter;
+        private bool _blnStolen;
 
         #region Constructor, Create, Save, Load, and Print Methods
 
@@ -76,8 +78,12 @@ namespace Chummer.Backend.Equipment
 
         public void Load(XmlNode objXmlData)
         {
-            objXmlData.TryGetField("guid", Guid.TryParse, out _guiID);
             objXmlData.TryGetStringFieldQuickly("name", ref _strName);
+            if (!objXmlData.TryGetGuidFieldQuickly("sourceid", ref _guiSourceID))
+            {
+                XmlNode node = GetNode(GlobalOptions.Language);
+                node?.TryGetGuidFieldQuickly("id", ref _guiSourceID);
+            }
             objXmlData.TryGetStringFieldQuickly("category", ref _strCategory);
             XmlNodeList xmlComponentsNodeList = objXmlData.SelectNodes("drugcomponents/drugcomponent");
             if (xmlComponentsNodeList?.Count > 0)
@@ -90,10 +96,10 @@ namespace Chummer.Backend.Equipment
                 }
             }
 
-            if (objXmlData["sourceid"] == null || !objXmlData.TryGetField("sourceid", Guid.TryParse, out _sourceID))
+            if (!objXmlData.TryGetGuidFieldQuickly("sourceid", ref _guiSourceID))
             {
                 XmlNode node = GetNode(GlobalOptions.Language);
-                node?.TryGetField("id", Guid.TryParse, out _sourceID);
+                node?.TryGetGuidFieldQuickly("id", ref _guiSourceID);
             }
             objXmlData.TryGetStringFieldQuickly("availability", ref _strAvailability);
             objXmlData.TryGetDecFieldQuickly("cost", ref _decCost);
@@ -101,6 +107,8 @@ namespace Chummer.Backend.Equipment
             objXmlData.TryGetInt32FieldQuickly("rating", ref _intAddictionRating);
             objXmlData.TryGetInt32FieldQuickly("threshold", ref _intAddictionThreshold);
             objXmlData.TryGetStringFieldQuickly("grade", ref _strGrade);
+            objXmlData.TryGetInt32FieldQuickly("sortorder", ref _intSortOrder);
+            objXmlData.TryGetBoolFieldQuickly("stolen", ref _blnStolen);
             //objXmlData.TryGetField("source", out _strSource);
             //objXmlData.TryGetField("page", out _strPage);
         }
@@ -108,8 +116,8 @@ namespace Chummer.Backend.Equipment
         public void Save(XmlWriter objXmlWriter)
         {
             objXmlWriter.WriteStartElement("drug");
-            objXmlWriter.WriteElementString("id", _sourceID.ToString("D"));
-            objXmlWriter.WriteElementString("guid", _guiID.ToString());
+            objXmlWriter.WriteElementString("sourceid", SourceIDString);
+            objXmlWriter.WriteElementString("guid", InternalId);
             objXmlWriter.WriteElementString("name", _strName);
             objXmlWriter.WriteElementString("category", _strCategory);
             objXmlWriter.WriteElementString("quantity", _decQty.ToString(GlobalOptions.InvariantCultureInfo));
@@ -129,6 +137,8 @@ namespace Chummer.Backend.Equipment
             if (_intAddictionThreshold != 0)
                 objXmlWriter.WriteElementString("threshold", _intAddictionThreshold.ToString());
             objXmlWriter.WriteElementString("grade", _strGrade);
+            objXmlWriter.WriteElementString("sortorder", _intSortOrder.ToString());
+            objXmlWriter.WriteElementString("stolen", _blnStolen.ToString());
             /*if (source != null)
                 objXmlWriter.WriteElementString("source", source);
             if (page != 0)
@@ -319,10 +329,15 @@ namespace Chummer.Backend.Equipment
 		/// </summary>
 		public decimal TotalCost => Cost * Quantity;
 
-	    /// <summary>
-		/// Total amount of the Drug held by the character.
-		/// </summary>
-		public decimal Quantity
+        /// <summary>
+        /// Total cost of the Drug.
+        /// </summary>
+        public decimal StolenTotalCost => Stolen ? TotalCost : 0;
+
+        /// <summary>
+        /// Total amount of the Drug held by the character.
+        /// </summary>
+        public decimal Quantity
 		{
 			get => _decQty;
 	        set => _decQty = value;
@@ -427,7 +442,7 @@ namespace Chummer.Backend.Equipment
             get
             {
                 if (_blnCachedLimitFlag) return _dicCachedLimits;
-                _dicCachedLimits = Components.Where(d => d.ActiveDrugEffect.Limits.Count > 0)
+                _dicCachedLimits = Components.Where(d => d.ActiveDrugEffect?.Limits.Count > 0)
                     .SelectMany(d => d.ActiveDrugEffect.Limits)
                     .GroupBy(x => x.Key).ToDictionary(x => x.Key, x => x.Sum(y => y.Value));
                 _blnCachedLimitFlag = true;
@@ -442,7 +457,7 @@ namespace Chummer.Backend.Equipment
 	        get
 	        {
 	            if (_blnCachedQualityFlag) return _lstCachedQualities;
-	            foreach (DrugComponent d in Components)
+	            foreach (DrugComponent d in Components.Where(d => d.ActiveDrugEffect != null))
 	            {
 	                _lstCachedQualities.AddRange(d.ActiveDrugEffect.Qualities);
                 }
@@ -459,7 +474,7 @@ namespace Chummer.Backend.Equipment
 	        get
 	        {
 	            if (_blnCachedInfoFlag) return _lstCachedInfos;
-	            foreach (DrugComponent d in Components)
+	            foreach (DrugComponent d in Components.Where(d => d.ActiveDrugEffect != null))
 	            {
 	                _lstCachedInfos.AddRange(d.ActiveDrugEffect.Infos);
                 }
@@ -477,7 +492,7 @@ namespace Chummer.Backend.Equipment
             get
             {
                 if (_intCachedInitiative != int.MinValue) return _intCachedInitiative;
-                _intCachedInitiative = Components.Sum(d => d.ActiveDrugEffect.Initiative);
+                _intCachedInitiative = Components.Sum(d => d.ActiveDrugEffect?.Initiative ?? 0);
                 return _intCachedInitiative;
             }
         }
@@ -488,7 +503,7 @@ namespace Chummer.Backend.Equipment
             get
             {
                 if (_intCachedInitiativeDice != int.MinValue) return _intCachedInitiativeDice;
-                _intCachedInitiativeDice = Components.Sum(d => d.ActiveDrugEffect.InitiativeDice);
+                _intCachedInitiativeDice = Components.Sum(d => d.ActiveDrugEffect?.InitiativeDice ?? 0);
                 return _intCachedInitiativeDice;
             }
         }
@@ -499,7 +514,7 @@ namespace Chummer.Backend.Equipment
             get
             {
                 if (_intCachedSpeed != int.MinValue) return _intCachedSpeed;
-                _intCachedSpeed = Components.Sum(d => d.ActiveDrugEffect.Speed);
+                _intCachedSpeed = Components.Sum(d => d.ActiveDrugEffect?.Speed ?? 0);
                 return _intCachedSpeed;
             }
         }
@@ -510,7 +525,7 @@ namespace Chummer.Backend.Equipment
             get
             {
                 if (_intCachedDuration != int.MinValue) return _intCachedDuration;
-                _intCachedDuration = Components.Sum(d => d.ActiveDrugEffect.Duration);
+                _intCachedDuration = Components.Sum(d => d.ActiveDrugEffect?.Duration ?? 0);
                 return _intCachedDuration;
             }
         }
@@ -521,9 +536,18 @@ namespace Chummer.Backend.Equipment
             get
             {
                 if (_intCachedCrashDamage != int.MinValue) return _intCachedCrashDamage;
-                _intCachedCrashDamage = Components.Sum(d => d.ActiveDrugEffect.Duration);
+                _intCachedCrashDamage = Components.Sum(d => d.ActiveDrugEffect?.CrashDamage ?? 0);
                 return _intCachedCrashDamage;
             }
+        }
+
+        /// <summary>
+        /// Used by our sorting algorithm to remember which order the user moves things to
+        /// </summary>
+        public int SortOrder
+        {
+            get => _intSortOrder;
+            set => _intSortOrder = value;
         }
 
         public string Notes { get; internal set; }
@@ -596,7 +620,23 @@ namespace Chummer.Backend.Equipment
                 return SystemColors.WindowText;
             }
         }
-        public Guid SourceID => _sourceID;
+
+
+        /// <summary>
+        /// Identifier of the object within data files.
+        /// </summary>
+        public Guid SourceID => _guiSourceID;
+
+        /// <summary>
+        /// String-formatted identifier of the <inheritdoc cref="SourceID"/> from the data files.
+        /// </summary>
+        public string SourceIDString => _guiSourceID.ToString("D");
+
+        public bool Stolen
+        {
+            get => _blnStolen;
+            set => _blnStolen = value;
+        }
 
         #endregion
 
@@ -753,7 +793,12 @@ namespace Chummer.Backend.Equipment
         {
             if (_objCachedMyXmlNode == null || strLanguage != _strCachedXmlNodeLanguage || GlobalOptions.LiveCustomData)
             {
-                _objCachedMyXmlNode = XmlManager.Load("gear.xml", strLanguage).SelectSingleNode("/chummer/gears/gear[id = \"" + SourceID.ToString("D") + "\"]");
+                _objCachedMyXmlNode = SourceID == Guid.Empty
+                    ? XmlManager.Load("drugcomponents.xml", strLanguage)
+                        .SelectSingleNode($"/chummer/drugcomponents/drugcomponent[name = \"{Name}\"]")
+                    : XmlManager.Load("drugcomponents.xml", strLanguage)
+                        .SelectSingleNode($"/chummer/drugcomponents/drugcomponent[id = \"{SourceIDString}\" or id = \"{SourceIDString}\"]");
+
                 _strCachedXmlNodeLanguage = strLanguage;
             }
             return _objCachedMyXmlNode;
@@ -766,7 +811,7 @@ namespace Chummer.Backend.Equipment
 	public class DrugComponent : IHasName, IHasInternalId, IHasXmlNode
 	{
 	    private Guid _guidId;
-	    private Guid _sourceID;
+	    private Guid _guiSourceID;
         private string _strName;
 		private string _strCategory;
 	    private string _strAvailability = "0";
@@ -790,9 +835,13 @@ namespace Chummer.Backend.Equipment
 		#region Constructor, Create, Save, Load, and Print Methods
 		public void Load(XmlNode objXmlData)
 		{
-		    objXmlData.TryGetField("internalid", Guid.TryParse, out _guidId);
-            objXmlData.TryGetField("id", Guid.TryParse, out _sourceID);
-            objXmlData.TryGetStringFieldQuickly("name", ref _strName);
+		    objXmlData.TryGetStringFieldQuickly("name", ref _strName);
+            if (!objXmlData.TryGetGuidFieldQuickly("sourceid", ref _guiSourceID))
+		    {
+		        XmlNode node = GetNode(GlobalOptions.Language);
+		        node?.TryGetGuidFieldQuickly("id", ref _guiSourceID);
+		    }
+            objXmlData.TryGetField("internalid", Guid.TryParse, out _guidId);
 			objXmlData.TryGetStringFieldQuickly("category", ref _strCategory);
 		    XmlNodeList xmlEffectsList = objXmlData.SelectNodes("effects/effect");
 		    if (xmlEffectsList?.Count > 0)
@@ -883,8 +932,8 @@ namespace Chummer.Backend.Equipment
 
 		public void Save(XmlWriter objXmlWriter)
         {
-            objXmlWriter.WriteElementString("internalid", _guidId.ToString("D"));
-            objXmlWriter.WriteElementString("id", _sourceID.ToString("D"));
+            objXmlWriter.WriteElementString("sourceid", SourceIDString);
+            objXmlWriter.WriteElementString("guid", InternalId);
             objXmlWriter.WriteElementString("name", _strName);
 			objXmlWriter.WriteElementString("category", _strCategory);
 
@@ -1131,7 +1180,16 @@ namespace Chummer.Backend.Equipment
 		    set => _intLevel = value;
 	    }
 
-	    public Guid SourceID => _sourceID;
+
+	    /// <summary>
+	    /// Identifier of the object within data files.
+	    /// </summary>
+	    public Guid SourceID => _guiSourceID;
+
+	    /// <summary>
+	    /// String-formatted identifier of the <inheritdoc cref="SourceID"/> from the data files.
+	    /// </summary>
+	    public string SourceIDString => _guiSourceID.ToString("D");
 
         public string InternalId => _guidId.ToString("D");
         #endregion
@@ -1256,8 +1314,12 @@ namespace Chummer.Backend.Equipment
 	    {
 	        if (_objCachedMyXmlNode == null || strLanguage != _strCachedXmlNodeLanguage || GlobalOptions.LiveCustomData)
 	        {
-	            _objCachedMyXmlNode = XmlManager.Load("drugcomponents.xml", strLanguage).SelectSingleNode("/chummer/drugcomponents/drugcomponent[id = \"" + SourceID.ToString("D") + "\"]");
-	            _strCachedXmlNodeLanguage = strLanguage;
+	            _objCachedMyXmlNode = SourceID == Guid.Empty
+	                ? XmlManager.Load("drugcomponents.xml", strLanguage)
+	                    .SelectSingleNode($"/chummer/drugcomponents/drugcomponent[name = \"{Name}\"]")
+	                : XmlManager.Load("drugcomponents.xml", strLanguage)
+	                    .SelectSingleNode($"/chummer/drugcomponents/drugcomponent[id = \"{SourceIDString}\" or id = \"{SourceIDString}\"]");
+                _strCachedXmlNodeLanguage = strLanguage;
 	        }
 	        return _objCachedMyXmlNode;
 	    }

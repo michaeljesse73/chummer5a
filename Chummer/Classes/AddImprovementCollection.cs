@@ -71,7 +71,7 @@ namespace Chummer.Classes
                 intAugmentedMaximum, strExclude, blnAddToRating, strTarget, strCondition);
         }
 
-        #region
+        #region Improvement Methods
         public void qualitylevel(XmlNode bonusNode)
         {
             /*
@@ -354,7 +354,7 @@ namespace Chummer.Classes
                 frmSelectItem frmPickItem = new frmSelectItem
                 {
                     DropdownItems = lstTraditions,
-                    SelectedItem = _objCharacter.MagicTradition.SourceID,
+                    SelectedItem = _objCharacter.MagicTradition.SourceIDString,
                     AllowAutoSelect = false
                 };
                 frmPickItem.ShowDialog();
@@ -461,6 +461,7 @@ namespace Chummer.Classes
             string strVal = bonusNode["val"]?.InnerText;
             string strMax = bonusNode["max"]?.InnerText;
             bool blnDisableSpec = bonusNode.InnerXml.Contains("disablespecializationeffects");
+            bool blnAllowUpgrade = !bonusNode.InnerXml.Contains("disableupgrades");
             // Find the selected Skill.
             if (blnIsKnowledgeSkill)
             {
@@ -502,7 +503,7 @@ namespace Chummer.Classes
                 }
                 else
                 {
-                    KnowledgeSkill k = new KnowledgeSkill(_objCharacter, strSelectedSkill);
+                    KnowledgeSkill k = new KnowledgeSkill(_objCharacter, strSelectedSkill, blnAllowUpgrade);
                     _objCharacter.SkillsSection.KnowledgeSkills.Add(k);
                     // We've found the selected Skill.
                     if (!string.IsNullOrEmpty(strVal))
@@ -680,10 +681,10 @@ namespace Chummer.Classes
                     {
                         Log.Info("selectattribute");
 
-                        Log.Info("selectattribute = " + bonusNode.OuterXml);
+                        Log.Info("selectattribute = " + objXmlAttribute.OuterXml);
 
                         List<string> lstAbbrevs = new List<string>();
-                        XmlNodeList xmlAttributeList = bonusNode.SelectNodes("attribute");
+                        XmlNodeList xmlAttributeList = objXmlAttribute.SelectNodes("attribute");
                         if (xmlAttributeList?.Count > 0)
                         {
                             foreach (XmlNode objSubNode in xmlAttributeList)
@@ -692,7 +693,7 @@ namespace Chummer.Classes
                         else
                         {
                             lstAbbrevs.AddRange(AttributeSection.AttributeStrings);
-                            xmlAttributeList = bonusNode.SelectNodes("excludeattribute");
+                            xmlAttributeList = objXmlAttribute.SelectNodes("excludeattribute");
                             if (xmlAttributeList?.Count > 0)
                             {
                                 foreach (XmlNode objSubNode in xmlAttributeList)
@@ -2178,7 +2179,7 @@ namespace Chummer.Classes
 
             if (bonusNode["addknowledge"] != null)
             {
-                KnowledgeSkill objKnowledgeSkill = new KnowledgeSkill(_objCharacter, SelectedValue);
+                KnowledgeSkill objKnowledgeSkill = new KnowledgeSkill(_objCharacter, SelectedValue, false);
 
                 _objCharacter.SkillsSection.KnowsoftSkills.Add(objKnowledgeSkill);
                 if (ImprovementManager.ValueOf(_objCharacter, Improvement.ImprovementType.SkillsoftAccess) > 0)
@@ -2209,7 +2210,7 @@ namespace Chummer.Classes
             Log.Info("_strSelectedValue = " + SelectedValue);
             Log.Info("SourceName = " + SourceName);
             
-            KnowledgeSkill objSkill = new KnowledgeSkill(_objCharacter, SelectedValue);
+            KnowledgeSkill objSkill = new KnowledgeSkill(_objCharacter, SelectedValue, false);
 
             _objCharacter.SkillsSection.KnowsoftSkills.Add(objSkill);
             if (ImprovementManager.ValueOf(_objCharacter, Improvement.ImprovementType.SkillsoftAccess) > 0)
@@ -2302,7 +2303,7 @@ namespace Chummer.Classes
             Log.Info("nuyenamt");
             Log.Info("nuyenamt = " + bonusNode.OuterXml);
             Log.Info("Calling CreateImprovement");
-            CreateImprovement(string.Empty, _objImprovementSource, SourceName, Improvement.ImprovementType.Nuyen, _strUnique,
+            CreateImprovement(bonusNode.Attributes["condition"]?.InnerText ?? string.Empty, _objImprovementSource, SourceName, Improvement.ImprovementType.Nuyen, _strUnique,
                 ImprovementManager.ValueToInt(_objCharacter, bonusNode.InnerText, _intRating));
         }
 
@@ -3041,7 +3042,10 @@ namespace Chummer.Classes
             Log.Info("lifestylecost");
             Log.Info("lifestylecost = " + bonusNode.OuterXml);
             Log.Info("Calling CreateImprovement");
-            CreateImprovement(string.Empty, _objImprovementSource, SourceName, Improvement.ImprovementType.LifestyleCost, _strUnique,
+
+            // If the Lifestyle node is present, we restrict to a specific lifestyle type. 
+            string baseLifestyle = bonusNode.Attributes?["lifestyle"]?.InnerText ?? string.Empty;
+            CreateImprovement(baseLifestyle, _objImprovementSource, SourceName, Improvement.ImprovementType.LifestyleCost, _strUnique,
                 ImprovementManager.ValueToInt(_objCharacter, bonusNode.InnerText, _intRating));
         }
 
@@ -3051,7 +3055,10 @@ namespace Chummer.Classes
             Log.Info("basiclifestylecost");
             Log.Info("basiclifestylecost = " + bonusNode.OuterXml);
             Log.Info("Calling CreateImprovement");
-            CreateImprovement(string.Empty, _objImprovementSource, SourceName, Improvement.ImprovementType.BasicLifestyleCost, _strUnique,
+
+            // If the Lifestyle node is present, we restrict to a specific lifestyle type. 
+            string baseLifestyle = bonusNode.Attributes?["lifestyle"]?.InnerText ?? string.Empty;
+            CreateImprovement(baseLifestyle, _objImprovementSource, SourceName, Improvement.ImprovementType.BasicLifestyleCost, _strUnique,
                 ImprovementManager.ValueToInt(_objCharacter, bonusNode.InnerText, _intRating));
         }
 
@@ -3299,7 +3306,6 @@ namespace Chummer.Classes
 
             Log.Info("weaponcategorydv");
             Log.Info("weaponcategorydv = " + bonusNode.OuterXml);
-            XmlNodeList objXmlCategoryList = bonusNode.SelectNodes("weaponcategorydv");
             XmlNode nodWeapon = bonusNode;
 
             if (nodWeapon["selectskill"] != null)
@@ -3314,28 +3320,21 @@ namespace Chummer.Classes
 
                 Log.Info("strSelected = " + SelectedValue);
 
-                foreach (Power objPower in _objCharacter.Powers)
-                {
-                    if (objPower.InternalId == SourceName)
-                    {
-                        objPower.Extra = SelectedValue;
-                    }
-                }
-
-                Log.Info("Calling CreateImprovement");
-                CreateImprovement(SelectedValue, _objImprovementSource, SourceName,
-                    Improvement.ImprovementType.WeaponCategoryDV, _strUnique, ImprovementManager.ValueToInt(_objCharacter, nodWeapon["bonus"]?.InnerXml, _intRating));
+                Power objPower = _objCharacter.Powers.FirstOrDefault(p => p.InternalId == SourceName);
+                if (objPower != null)
+                    objPower.Extra = SelectedValue;
             }
-            else if (objXmlCategoryList != null)
+            else if (nodWeapon["name"] != null)
             {
-                // Run through each of the Skill Groups since there may be more than one affected.
-                foreach (XmlNode objXmlCategory in objXmlCategoryList)
-                {
-                    Log.Info("Calling CreateImprovement");
-                    CreateImprovement(objXmlCategory["name"]?.InnerText, _objImprovementSource, SourceName,
-                        Improvement.ImprovementType.WeaponCategoryDV, _strUnique, ImprovementManager.ValueToInt(_objCharacter, objXmlCategory["bonus"]?.InnerXml, _intRating));
-                }
+                SelectedValue = nodWeapon["name"].InnerText;
             }
+            else
+            {
+                Utils.BreakIfDebug();
+            }
+            Log.Info("Calling CreateImprovement");
+            CreateImprovement(SelectedValue, _objImprovementSource, SourceName,
+                Improvement.ImprovementType.WeaponCategoryDV, _strUnique, ImprovementManager.ValueToInt(_objCharacter, nodWeapon["bonus"]?.InnerXml, _intRating));
         }
 
         public void weaponcategorydice(XmlNode bonusNode)
@@ -3447,7 +3446,7 @@ namespace Chummer.Classes
 
             string strForce = ForcedValue;
             MentorSpirit objMentor = new MentorSpirit(_objCharacter);
-            objMentor.Create(xmlMentor, Improvement.ImprovementType.MentorSpirit, ForcedValue, frmPickMentorSpirit.Choice1, frmPickMentorSpirit.Choice2, frmPickMentorSpirit.MentorsMask);
+            objMentor.Create(xmlMentor, Improvement.ImprovementType.MentorSpirit, ForcedValue, frmPickMentorSpirit.Choice1, frmPickMentorSpirit.Choice2);
             _objCharacter.MentorSpirits.Add(objMentor);
 
             ForcedValue = strForce;
@@ -3486,7 +3485,7 @@ namespace Chummer.Classes
 
             string strForce = ForcedValue;
             MentorSpirit objMentor = new MentorSpirit(_objCharacter);
-            objMentor.Create(xmlMentor, Improvement.ImprovementType.Paragon, ForcedValue, frmPickMentorSpirit.Choice1, frmPickMentorSpirit.Choice2, frmPickMentorSpirit.MentorsMask);
+            objMentor.Create(xmlMentor, Improvement.ImprovementType.Paragon, ForcedValue, frmPickMentorSpirit.Choice1, frmPickMentorSpirit.Choice2);
             _objCharacter.MentorSpirits.Add(objMentor);
 
             ForcedValue = strForce;
@@ -3502,7 +3501,8 @@ namespace Chummer.Classes
             Log.Info("smartlink");
             Log.Info("smartlink = " + bonusNode.OuterXml);
             Log.Info("Calling CreateImprovement");
-            CreateImprovement(string.Empty, _objImprovementSource, SourceName, Improvement.ImprovementType.Smartlink, "smartlink");
+            CreateImprovement(string.Empty, _objImprovementSource, SourceName, Improvement.ImprovementType.Smartlink,
+                "smartlink", ImprovementManager.ValueToInt(_objCharacter, bonusNode.InnerText, _intRating));
         }
 
         // Check for Adapsin bonus.
@@ -4638,7 +4638,7 @@ namespace Chummer.Classes
         }
 
         // Check for Spell Category bonuses.
-        public void spellcategory(XmlNode bonusNode)
+        public void spellcategorydicepool(XmlNode bonusNode)
         {
             Log.Info("spellcategory");
             Log.Info("spellcategory = " + bonusNode.OuterXml);
@@ -4646,6 +4646,17 @@ namespace Chummer.Classes
             Log.Info("Calling CreateImprovement");
             CreateImprovement(bonusNode["name"]?.InnerText, _objImprovementSource, SourceName,
                 Improvement.ImprovementType.SpellCategory, _strUnique, ImprovementManager.ValueToInt(_objCharacter, bonusNode["val"]?.InnerText, _intRating));
+        }
+
+        // Check for dicepool bonuses for a specific Spell.
+        public void spelldicepool(XmlNode bonusNode)
+        {
+            Log.Info("spelldicepool");
+            Log.Info("spelldicepool = " + bonusNode.OuterXml);
+
+            Log.Info("Calling CreateImprovement");
+            CreateImprovement(bonusNode["id"]?.InnerText ?? bonusNode["name"]?.InnerText, _objImprovementSource, SourceName,
+                Improvement.ImprovementType.SpellDicePool, _strUnique, ImprovementManager.ValueToInt(_objCharacter, bonusNode["val"]?.InnerText, _intRating));
         }
 
         // Check for Spell Category Drain bonuses.
@@ -6182,12 +6193,31 @@ namespace Chummer.Classes
                 ImprovementManager.ValueToInt(_objCharacter, bonusNode.InnerText, _intRating));
         }
 
+        public void specialmodificationlimit(XmlNode bonusNode)
+        {
+            Log.Info("spellresistance");
+            CreateImprovement(string.Empty, _objImprovementSource, SourceName, Improvement.ImprovementType.SpecialModificationLimit, _strUnique,
+                ImprovementManager.ValueToInt(_objCharacter, bonusNode.InnerText, _intRating));
+        }
+
         public void cyberadeptdaemon(XmlNode bonusNode)
         {
             //TODO: I'm not happy with this. 
             Log.Info("cyberadeptdaemon");
             int final = (int) Math.Min((decimal) Math.Ceiling(0.5 * _objCharacter.SubmersionGrade), _objCharacter.CyberwareEssence);
             CreateImprovement("RESBase", _objImprovementSource, SourceName, Improvement.ImprovementType.Attribute, _strUnique, final, 1, 0, 0, final);
+        }
+
+        /// <summary>
+        /// Improvement increases the Dice Pool for a specific named Action.
+        /// TODO: Link to actions.xml when we implement that. 
+        /// </summary>
+        /// <param name="bonusNode"></param>
+        public void actiondicepool(XmlNode bonusNode)
+        {
+            Log.Info("actiondicepool");
+            CreateImprovement(bonusNode["name"]?.InnerText, _objImprovementSource, SourceName, Improvement.ImprovementType.ActionDicePool,
+                _strUnique, ImprovementManager.ValueToInt(_objCharacter, bonusNode["val"]?.InnerText, _intRating));
         }
         #endregion
     }

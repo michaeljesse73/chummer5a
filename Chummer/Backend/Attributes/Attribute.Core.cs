@@ -34,6 +34,7 @@ namespace Chummer.Backend.Attributes
     /// Character CharacterAttribute.
     /// If using databinding, you should generally be using AttributeSection.{ATT}Binding
     /// </summary>
+    [HubClassTag("Abbrev", true, "TotalValue", null)]
     [DebuggerDisplay("{" + nameof(_strAbbrev) + "}")]
     public class CharacterAttrib : INotifyMultiplePropertyChanged
     {
@@ -130,7 +131,16 @@ namespace Chummer.Backend.Attributes
                 _intBase = 0;
             if (_intKarma < 0)
                 _intKarma = 0;
-	        _enumMetatypeCategory = ConvertToMetatypeAttributeCategory(objNode["metatypecategory"]?.InnerText ?? "Standard");
+            if (_objCharacter.LastSavedVersion <= Version.Parse("5.205.61") &&
+                (Abbrev == "MAG" || Abbrev == "RES" || Abbrev == "DEP" || Abbrev == "EDG"))
+            {
+                _enumMetatypeCategory = AttributeCategory.Special;
+            }
+            else
+            {
+                _enumMetatypeCategory =
+                    ConvertToMetatypeAttributeCategory(objNode["metatypecategory"]?.InnerText ?? "Standard");
+            }
         }
 
         /// <summary>

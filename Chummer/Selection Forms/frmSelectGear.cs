@@ -110,7 +110,7 @@ namespace Chummer
                     if (!string.IsNullOrEmpty(strAllowedMount))
                         strMount.Append(". = \"" + strAllowedMount + "\" or ");
                 }
-                strMount.Append("category = \"General\"");
+                strMount.Append(". = \"General\"");
                 objXmlCategoryList = _xmlBaseGearDataNode.Select("categories/category[" + strMount.ToString() + "]");
             }
             else
@@ -159,7 +159,7 @@ namespace Chummer
             // Select the first Category in the list.
             if (!string.IsNullOrEmpty(s_StrSelectCategory))
                 cboCategory.SelectedValue = s_StrSelectCategory;
-            if (cboCategory.SelectedIndex == -1)
+            if (cboCategory.SelectedIndex == -1 && cboCategory.Items.Count > 0)
                 cboCategory.SelectedIndex = 0;
             else
                 RefreshList(cboCategory.SelectedValue?.ToString());
@@ -615,6 +615,12 @@ namespace Chummer
 
             if (!string.IsNullOrEmpty(strAvailExpr))
             {
+                if (strAvailExpr.StartsWith("FixedValues("))
+                {
+                    string[] strValues = strAvailExpr.TrimStartOnce("FixedValues(", true).TrimEndOnce(')').Split(',');
+                    strAvailExpr = strValues[(int) Math.Max(Math.Min(nudRating.Value, strValues.Length) - 1, 0)];
+                }
+
                 char chrLastChar = strAvailExpr[strAvailExpr.Length - 1];
                 if (chrLastChar == 'R')
                 {

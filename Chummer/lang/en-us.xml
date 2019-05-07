@@ -23,18 +23,22 @@
   <righttoleft>False</righttoleft>
   <strings>
 	  <!-- Region Meta Strings -->
-	<string>
-		<key>Message_Insufficient_Permissions_Warning</key>
-		<text>Chummer5 is currently not being run with proper permissions! If you are not running Chummer5 as an administrator, please move it to a folder owned by your user.</text>
-	</string>
-	<string>
-		<key>Message_Save_Error_Warning</key>
-		<text>Chummer5 encountered an error while saving the character.</text>
-	</string>
-	<string>
-		<key>Message_File_Cannot_Be_Accessed</key>
-		<text>Chummer5 cannot access the file for writing. Please make sure it has permission to write to the location and that the file is not currently in use.</text>
-	</string>
+	  <string>
+		  <key>Message_Insufficient_Permissions_Warning</key>
+		  <text>Chummer5 is currently not being run with proper permissions! If you are not running Chummer5 as an administrator, please move it to a folder owned by your user.</text>
+	  </string>
+	  <string>
+		  <key>Message_Save_Error_Warning</key>
+		  <text>Chummer5 encountered an error while saving the character.</text>
+	  </string>
+	  <string>
+		  <key>Message_File_Cannot_Be_Accessed</key>
+		  <text>Chummer5 cannot access the file for writing. Please make sure it has permission to write to the location and that the file is not currently in use.</text>
+	  </string>
+    <string>
+      <key>Message_Files_Cannot_Be_Removed</key>
+      <text>Chummer5 could not remove the below files during update as they were inaccessible:</text>
+    </string>
     <!-- End Region -->
     <!-- Region File Dialog Filter Strings -->
   <string>
@@ -70,6 +74,10 @@
     <string>
       <key>String_NotApplicable</key>
       <text>N/A</text>
+    </string>
+    <string>
+      <key>String_Wireless</key>
+      <text>Wireless</text>
     </string>
     <string>
       <key>String_Version</key>
@@ -117,7 +125,7 @@
     </string>
     <string>
       <key>Tip_SplitItems</key>
-      <text>This item is made up of multiple combined skills. Press here to seperate them</text>
+      <text>This item is made up of multiple combined skills. Press here to separate them</text>
     </string>
     <string>
       <key>String_PushTheLimit</key>
@@ -313,7 +321,7 @@
     </string>
     <string>
       <key>String_BuyWithKarma</key>
-      <text>Buy With Karma</text>
+      <text>Buy with Karma</text>
     </string>
     <string>
       <key>String_Points</key>
@@ -498,6 +506,10 @@
     <string>
       <key>Checkbox_HomeNode</key>
       <text>Home Node</text>
+    </string>
+    <string>
+      <key>Checkbox_Wireless</key>
+      <text>Wireless Enabled</text>
     </string>
     <string>
       <key>Checkbox_Commlinks</key>
@@ -1446,6 +1458,10 @@
       <text>Save &amp;As</text>
     </string>
     <string>
+      <key>Menu_FileSaveAsCreated</key>
+      <text>Save As &amp;Created</text>
+    </string>
+    <string>
       <key>Menu_FileExport</key>
       <text>Export</text>
     </string>
@@ -1667,7 +1683,7 @@
     </string>
     <string>
       <key>Menu_AddFromFile</key>
-      <text>&amp;Add From File</text>
+      <text>&amp;Add from File</text>
     </string>
     <string>
       <key>Tab_Common</key>
@@ -1839,7 +1855,7 @@
     </string>
     <string>
       <key>String_CyberzombieWILDescription</key>
-      <text>Roll the number of dice show and enter the number of Hits in the space provided. This will determine the value of Negative Qualities you must pick for becoming a Cyberzombie.</text>
+      <text>Roll the number of dice shown and enter the number of hits in the space provided. This will determine the value of Negative Qualities you must pick for becoming a Cyberzombie.</text>
     </string>
     <string>
       <key>Message_EnemyLimit</key>
@@ -2031,11 +2047,11 @@
     </string>
     <string>
       <key>Message_DeletePositiveQualityCareer</key>
-      <text>Are you sure you want to delete this Positive Quality? You will not receiving any Karma for removing it.</text>
+      <text>Are you sure you want to delete this Positive Quality? You will not receive any Karma for removing it.</text>
     </string>
 	<string>
 	  <key>Message_LowerPositiveQualityLevelCareer</key>
-	  <text>Are you sure you want to remove a level from this Positive Quality? You will not receiving any Karma for removing it.</text>
+	  <text>Are you sure you want to remove a level from this Positive Quality? You will not receive any Karma for removing it.</text>
 	</string>
     <string>
       <key>Message_DeleteImprovement</key>
@@ -2162,7 +2178,7 @@
       <text>You cannot have more than one unregistered Sprite at a time.</text>
     </string>
     <string>
-      <key>Message_UnregisteredSpriteLimit</key>
+      <key>MessageTitle_UnregisteredSpriteLimit</key>
       <text>Unregistered Sprite Limit</text>
     </string>
     <string>
@@ -2183,11 +2199,11 @@
     </string>
     <string>
       <key>Message_ComplexFormLimit</key>
-      <text>Your cannot have more complex forms than twice your RES score. Ref: Page 98, SR5 Core (Errata'd).</text>
+      <text>You cannot have more complex forms than twice your RES score. Ref: Page 98, SR5 Core (Errata'd).</text>
     </string>
     <string>
       <key>Message_PriorityComplexFormLimit</key>
-      <text>Your cannot have more complex forms than allowed by your selected Talent priority.</text>
+      <text>You cannot have more complex forms than allowed by your selected Talent priority.</text>
     </string>
     <string>
       <key>MessageTitle_ComplexFormLimit</key>
@@ -2544,6 +2560,10 @@
     <string>
       <key>Message_InvalidNuyenExcess</key>
       <text>{0} over your Nuyen total</text>
+    </string>
+    <string>
+      <key>Message_InvalidStolenNuyenExcess</key>
+      <text>{0} over your Nuyen total for Stolen Gear</text>
     </string>
     <string>
       <key>Message_InvalidEssenceExcess</key>
@@ -2927,7 +2947,7 @@
     </string>
     <string>
       <key>Message_UndoNotHighestGrade</key>
-      <text>You must undo the the entries for initiate grades above this one first.</text>
+      <text>You must undo the entries for initiate grades above this one first.</text>
     </string>
     <string>
       <key>MessageTitle_NotHighestGrade</key>
@@ -3269,6 +3289,10 @@
     <string>
       <key>String_ExpensePurchaseCyberwareSuite</key>
       <text>Purchased Cyberware Suite</text>
+    </string>
+    <string>
+      <key>String_ExpenseUpgradedCyberware</key>
+      <text>Upgraded Cyberware</text>
     </string>
     <string>
       <key>String_ExpensePurchaseWeapon</key>
@@ -3983,6 +4007,10 @@
     <string>
       <key>Label_Nuyen</key>
       <text>Nuyen:</text>
+    </string>
+    <string>
+      <key>Label_StolenGearNuyen</key>
+      <text>Nuyen (Stolen):</text>
     </string>
     <string>
       <key>Node_SelectedQualities</key>
@@ -4744,6 +4772,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
     <!-- End Region-->
     <!-- Region Street Gear/Armor Tab -->
     <string>
+      <key>Checkbox_Stolen</key>
+      <text>Stolen</text>
+    </string>
+    <string>
       <key>Checkbox_Equipped</key>
       <text>Equipped</text>
     </string>
@@ -4952,6 +4984,14 @@ Only one attribute may be at its Maximum value during character creation.</text>
       <text>The maximum level of a block that positively modifies an Attribute that the chosen foundation negatively modifies is Level 2. (CF 191)</text>
     </string>
     <string>
+      <key>Message_CustomDrug_Name</key>
+      <text>Please enter a name for your Drug.</text>
+    </string>
+    <string>
+      <key>MessageTitle_CustomDrug_Name</key>
+      <text>Drug Name</text>
+    </string>
+    <string>
       <key>Label_CrashEffect</key>
       <text>Crash Effect:</text>
     </string>
@@ -5019,7 +5059,7 @@ Only one attribute may be at its Maximum value during character creation.</text>
     </string>
     <string>
       <key>Menu_RenameExtraText</key>
-      <text>&amp;Remame Extra Text</text>
+      <text>&amp;Rename Extra Text</text>
     </string>
     <!-- End Region-->
     <!-- Region Vehicles Tab -->
@@ -5451,7 +5491,7 @@ Only one attribute may be at its Maximum value during character creation.</text>
     </string>
     <string>
       <key>Checkbox_Options_StrictSkillGroups</key>
-      <text>Strict interprentation of breaking skill groups in create mode</text>
+      <text>Strict interpretation of breaking skill groups in create mode</text>
     </string>
     <string>
       <key>Checkbox_Options_UseCyberlimbCalculation</key>
@@ -5482,8 +5522,16 @@ Only one attribute may be at its Maximum value during character creation.</text>
       <text>Karma spent on enemies counts towards negative Quality limit in create mode</text>
     </string>
     <string>
+      <key>Checkbox_Options_EnablePlugins</key>
+      <text>Enable Plugins (experimental)</text>
+    </string>
+    <string>
       <key>Checkbox_Options_HideCharacterRoster</key>
       <text>Hide the Character Roster</text>
+    </string>
+    <string>
+      <key>Checkbox_Options_AllowEasterEggs</key>
+      <text>Allow Easter Eggs</text>
     </string>
     <string>
       <key>String_SelectBP_LifeModuleSummary</key>
@@ -5503,7 +5551,7 @@ Only one attribute may be at its Maximum value during character creation.</text>
     </string>
     <string>
       <key>Tip_LifeModule_Warning</key>
-      <text>Life Modules are currently an experiemental system with limited features; it is present exclusively for testing purposes. See https://github.com/chummer5a/chummer5a/issues/2000 for details about the existing issues. Proceed at your own risk.\nDo you want to continue?</text>
+      <text>Life Modules are currently an experimental system with limited features; it is present exclusively for testing purposes. See https://github.com/chummer5a/chummer5a/issues/2000 for details about the existing issues. Proceed at your own risk.\nDo you want to continue?</text>
     </string>
     <!-- End Region-->
     <!-- Region Other Info Tab -->
@@ -7053,6 +7101,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
       <text>Miscellaneous</text>
     </string>
     <string>
+      <key>Tab_Options_Plugins</key>
+      <text>Plugins</text>
+    </string>
+    <string>
       <key>Label_Options_EditSourcebookInfo</key>
       <text>Edit Sourcebook Info</text>
     </string>
@@ -7138,7 +7190,7 @@ Only one attribute may be at its Maximum value during character creation.</text>
     </string>
     <string>
       <key>Checkbox_Options_PrintAllSkills</key>
-      <text>Print all Active Skills with total score higher than 0</text>
+      <text>Print all Active Skills with Rating 0 or higher</text>
     </string>
     <string>
       <key>Checkbox_Options_UseTotalValueForFreeKnowledge</key>
@@ -7581,6 +7633,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
       <text>Karma cost for increasing Special Attributes is not reduced with Essence Loss</text>
     </string>
     <string>
+      <key>Checkbox_Options_IgnoreComplexFormLimit</key>
+      <text>Ignore 2*RES Complex Form limit in Career Mode</text>
+    </string>
+    <string>
       <key>Checkbox_Options_UseRestrictionsToRecoilCompensation</key>
       <text>Use Restrictions to Recoil Compensation (RG 53)</text>
     </string>        
@@ -7709,6 +7765,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
       <text>Apply Linux printing fix</text>
     </string>
     <string>
+      <key>Label_Options_BrowserVersion</key>
+      <text>Preview uses Internet Explorer version</text>
+    </string>
+    <string>
       <key>Label_Options_EssenceDecimals</key>
       <text>Number of decimal places to round Essence to:</text>
     </string>
@@ -7823,6 +7883,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
     <string>
       <key>Label_Options_NuyenDecimalsMaximum</key>
       <text>Maximum number of Nuyen decimal places to display:</text>
+    </string>
+    <string>
+      <key>String_AvailablePlugins</key>
+      <text>Available Plugins</text>
     </string>
     <!-- End Region-->
     <!-- Region Print Multiple Window -->
@@ -8548,8 +8612,8 @@ Only one attribute may be at its Maximum value during character creation.</text>
       <text>Select AI Program or Advanced Program</text>
     </string>
     <string>
-      <key>Message_SelectAIProgram_AdvancedProgramRequirement</key>
-      <text>You do not meet the requirements for this Advanced Program. You must know the following Program: </text>
+      <key>String_Program</key>
+      <text>Program</text>
     </string>
     <string>
       <key>MessageTitle_SelectAIProgram_AdvancedProgramRequirement</key>
@@ -8631,7 +8695,7 @@ Only one attribute may be at its Maximum value during character creation.</text>
     </string>
     <string>
       <key>Message_SelectQuality_RequireESSGradeBelow</key>
-      <text>Less then {0} Essence consumed by {1} Grade: You have {2}</text>
+      <text>Less than {0} Essence consumed by {1} Grade: You have {2}</text>
     </string>
     <string>
       <key>Message_SelectQuality_RequireESSGradeAbove</key>
@@ -9330,7 +9394,7 @@ Only one attribute may be at its Maximum value during character creation.</text>
       <text>Cannot Load Character</text>
     </string>
     <!-- End Region-->
-	<!-- Region Karma Value Strings -->
+	  <!-- Region Karma Value Strings -->
 	<string>
       <key>MessageTitle_KarmaValue</key>
       <text>Character Karma Value</text>
@@ -9509,6 +9573,10 @@ Only one attribute may be at its Maximum value during character creation.</text>
 	  <key>Message_ImprovementLoadError</key>
 	  <text>Chummer5a encountered an error when loading one or more improvements for this character. This is likely because a certain improvement present in an older version of Chummer has been significantly altered in a later version.\n\nThe issue can be fixed by re-applying only the improvements that caused issues.\n\nDo you wish to re-apply the problematic issues right now? If you do not, the issues can still be fixed by re-applying all improvements via Special > Re-apply Improvements.</text>
 	</string>
+    <string>
+      <key>String_SpecialModificationLimit</key>
+      <text>Special Modification Limit</text>
+    </string>
     <!-- End Region -->
     <!-- Region Loading Form -->
     <string>
@@ -9563,6 +9631,14 @@ Only one attribute may be at its Maximum value during character creation.</text>
       <key>String_UI</key>
       <text>UI</text>
     </string>
+    <string>
+      <key>Message_OrphanedImprovements</key>
+      <text>Orphaned Improvements were found in your character file. In most cases it should be safe to load this character, but you may want to make a backup copy of this character file.\n\n Do you want to continue loading and remove these improvements?</text>
+    </string>
+    <string>
+      <key>MessageTitle_OrphanedImprovements</key>
+      <text>Orphaned Improvements Found</text>
+    </string>
     <!-- End Region -->
     <!-- Region HeroLab Importer -->
     <string>
@@ -9590,7 +9666,6 @@ Only one attribute may be at its Maximum value during character creation.</text>
       <text>Import Character</text>
     </string>
     <!-- End Region -->
-    <!-- End Region -->
     <string>
       <key>Message_DroneIllegalDowngrade</key>
       <text>The following {0} drones have downgrades which decrease their attributes too far:</text>
@@ -9603,5 +9678,20 @@ Only one attribute may be at its Maximum value during character creation.</text>
       <key>Message_NonGuidIdWarning</key>
       <text>{0} items were found in the file {1} with IDs that are not parsable as GUIDs. If you are using custom content, please ensure that ID fields are always filled with a unique GUID and only a unique GUID.\n\nItems with non-GUID ID fields:\n{2}</text>
     </string>
+    <!-- End Region -->
+    <!-- Region SINners Plugin -->
+    <string>
+      <key>String_online</key>
+      <text>Online</text>
+    </string>
+    <string>
+      <key>Menu_Main_SINnerSearch</key>
+      <text>Search SIN Database</text>
+    </string>
+    <string>
+      <key>Menu_Main_SINners</key>
+      <text>SINners</text>
+    </string>
+    <!-- End Region SINners Plugin-->
   </strings>
 </chummer>

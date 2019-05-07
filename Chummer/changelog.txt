@@ -1,4 +1,130 @@
-Future Build 204
+Future Build 206
+
+New Features:
+
+- Added a 'helpful' digital assistant, Chummy! Chummy is designed to offer tips via tooltip based on your character's content. It's designed for expansion through tips.xml, using the same forbidden/required structure as qualities. Yes, it's an April Fool's gag. I'm sorry, I thought it was cute and/or amusing. It can be toggled off by deselecting the Allow Easter Eggs option in the Global Options menu. 
+- Created a new Improvement Type that improves the dicepool of a specific spell; the spelldicepool improvement is available in the Custom Improvement creator. 
+- Implemented the Special Modifications and Prototype Materials qualities from Better Than Bad. The assorted bonuses are added through the Select Weapon Accessories form, allowing for custom content to be created. Note for content creators, the specialmodificationlimit property is used to indicate how many 'points' of the quality are consumed; this isn't super close to rules as written, but it's viable for our purposes. 
+- Exposed ParentDetails requirement checks to Armor Mods. This allows for filtering mods based on the XML properties of their parent, such as filtering based on name or armour value.
+- Gameplay Options can now be used as a forbidden/required choice for items; currently this is used for the Free Insect Spirit qualities, which require the Prime Runner gameplay choice. 
+
+Application Fixes:
+
+- Slightly better implementation of the Upgrade mechanism for cyberware. Still needs work, but shouldn't improperly consume Essence anymore. 
+- Fixed an issue with cyberware that should not permit subsystems still doing so. 
+- Fixed incorrect consumption of capacity by modular limbs connecting to modular connectors. 
+- Fixed the behaviour of the Death Mentor Spirit's Magician benefit to allow dicepool benefits for specific skills. Uses the spelldicepool improvement.
+- Fixed an issue with traditions not probably updating.
+- Fixed issues with use of Essence Antiholes in create mode that prevented them from working reliably.
+- Fixed an issue with the selectatributes improvement that caused it to improperly allow Exceptional Attribute to select Edge.
+- Fixed issues with Dedicated Spellslinger not working properly in career mode.
+- Fixed a crash when opening the Print Multiple Characters dialog multiple times.
+- Fixed incorrect metatype minimums for metasapients when using priority generation.
+- Fixed missing matrix condition monitors for equipment.
+- Fixed a parsing issue with the check for if multiple attributes could be at metatype max that could occasionally cause a clash.
+- Fixed issues with the implementation of the dual attribute connection for shapeshifters that caused them to inconsistently use the correct attribute.
+- Fixed an issue with the adding of One Trick Pony's free technique.
+
+Application Changes:
+
+- Spells now properly store their Source ID. Used for some Improvements. 
+- Small refactor to the Spell class to use RelevantImprovements method. Doesn't actually reduce complexity, but makes me feel a bit better about having less boilerplate. 
+- Added a string to the Skill.Core class that allows for formatting the skill's dicepool, specialisations and such instead of reprocessing it in multiple other locations.
+- Refactored the creation, saving and loading of GUIDs for the Internal ID and Source ID of all objects to provide more consistency. There is a small risk that this will impact the stored improvements of some characters. I haven't been able to prove that it will happen, but logically it should based on this change. 
+- Fixed an issue with adding gear to weapon accessories when the weapon accessory was installed with the weapon.
+
+UI Changes:
+
+- Fixed some behaviour with non-maximised windows to prevent new windows from being opened maximised, or windows being maximised on gaining focus. 
+- Added Minimise and Maximise buttons to the Character Roster. Closes #3495
+- Made some changes to the PoolToolTip property to properly account for custom attributes.
+
+Data Changes:
+
+- Fixed incorrect bonuses of the Death Mentor Spirit for Adepts. Properly allows taking one of the two powers provided. Fix provided by Gidoran. 
+- Fixed incorrect spelling of Limit Modifiers on the Retractable Climbing Claws cyberware.
+- Fixed incorrect Page and Specialisation category for the Cavalier Champion. Closes #3496
+- Added a new customdata entry for German Data Changes to add Machine Pistols and Submachine Guns to Standard and Heavy Weapon Mounts.
+- Added missing side prompts to the synthetic modular full arm and leg.
+- Fixed a typo in the Cavalier Arms Adder Slivergun's name.
+- Added a new customdata entry for the Ram Plate Vehicle Modification that sets it to use the stats as provided in Hero Lab. 
+- Fixed incorrect restrictions on the Special Modications and Prototype Materials qualities. 
+- Removed incorrrect mundane restriction on the Quadriplegic quality.
+- Fixed behaviour of partial cyberlimbs giving incorrect condition monitor boxes.
+- Removed <canwrite /> from the Made Man quality; this improperly allowed for the group to be removed from the character.
+- Added Free Insect quality choices from Dark Terrors. These are hidden behind a Prime Runner gameplay requirement. 
+- Fixed capacities of the Bug Promotional Pen and Concealable Surveillance Gear.
+
+String Changes:
+
+- Added a string tag for the Enable Plugins menu option. Closes #3486
+
+Build 205
+
+Application Changes:
+- Added a new improvement type - actiondicepool - to support specific Actions receiving dicepool bonuses. Currently only Threading is supported by this.
+- Fixed behaviour of Exotic weapons to prevent them from from using the first exotic skill found.
+- Exposed the selection of AI programs to the main RequirementsMet method. Prevents issues with programs not being translated, offends me slightly less. Fixes #3350
+- Fixed processing of FixedValues on the Select Gear window.
+- Refactored string processing method for Gear Ratings into a single method. Allows MinRating, MaxRating, MatrixAttributes and TotalBonusMatrixBoxes (for LivingPersona only) to use complex strings such as {Parent DeviceRating}. Fixes #3360
+- Foxed some behaviour in creation of packs to properly allow creatio nof lifestyles.
+- Fixed behaviour of child Cyberware with the AddToParentESS flag not properly adding their essence cost to the parent.
+- Fixed issues with the subsystem and gear limitations for Cyberware and Gear that prevented categories from loading properly.
+- Capped cost multipliers for lifestyles to -0%. 
+- Added the 'lifestyle' attribute to the lifestylecost and basiclifestylecost improvement types. This supports limiting the bonus to a specific Lifestyle type, such as Low or Squatter. 
+- ValueOf has been altered slightly to allow for selecting objects that are either of a given ImprovedName, or don't have one, in support of the above changes. Defaults to existing behaviour.
+- Implemented a basic upgrade mechanism in career mode for cyberware, accessed through a submenu of the Delete Cyberware button.
+- Added code to the SelectQuality form to show karma discounts if the quality qualifies for it.
+- Fixed a crash when loading plugins, if plugins cannot be found. 
+- Altered the Mentor Spirit selection window to hide list choices that can't be taken due to Magician or Adept requirements.
+- Better check for open files when trying to restart the application after updating.
+- Orphaned improvement checks are now made on every character load. This is still a hackish method to get around the issue with Qi Foci that affect Improved Ability (Skill) causing orphaned improvements, but it's generally a healthy attitude to take anyway. In order to prevent character corruption without user acceptance, it will also prompt if you want to abort loading the character until you've taken a backup.
+- Made additions to the nuyenamt improvement to allow specifying specific conditions for which the nuyen is used. This in turn supports the Stolen quality of Equipment objects, allowing the Stolen nuyen to be spent exclusively on these items without affecting the overall nuyen budget of the character.
+- Fixed issues with the refresh and removal of Locations.
+- Added a Save As Created option to the File window of characters in Create mode; this does not require that the Mark as Created checkbox be checked on the Character Info tab.
+- Fixed an issue with the process of re-purchasing gear that is permitted to have zero quantity, such as ammunition.
+- Minor change in functionalty of the UnarmedImprovementsApplyToWeapons improvement type that now permits UnarmedReach improvements to affect weapons that use the Unarmed Combat skill. 
+- Improved functionality of gameplayoptions to decouple the link between a character's starting karma and their quality limit. Closes #3436
+- Implemented a hackish workaround for disabled tooltip controls on attribute and skill controls. Should fix #3414, most likely needs further work.
+- Fixed behaviour of skill controls to properly refresh their rating when selecting a custom attribute for tests.
+- Fixed a cost calculation for built-in weapon mounts.
+- Fixed behaviour of the Shapeshifter attribute in career mode incorrectly presenting the wrong way around. Closes #3343
+- Fixed an issue that meant restarting Chummer with multiple character files open would open the same file multiple times. Closes #3298
+- Removed the hard-coded Mentor's Mask improvement and replaced it with a 0-point quality. Closes #3449
+- Fixed an issue with inability to add user-enterable specialisations in active or knowledge skills.
+- Made some changes to the way in which skills are notified about changes to their linked attributes. Improves functionality for shapeshifters, may have knock-on issues that I haven't been able to test. 
+
+Data Changes:
+- Fixed incorrect underbarrel weapon name for the Nissan Optimum II that caused a crash. Fixes part of #3344
+- Fixed incorrect bonus for the Delphi Paragon to apply to Threading actions instead of Compiling.
+- Set the ammo type for the FN-AAL to Gyrojet. Possibly not correct, as there's no proper RAW on what ammo the weapon is supposed to fire. 
+- Fixed incorrect price for the Reakt geneware. 
+- Allowed the Peak-Discharge energy packs to be added as accessories to weapons with External Source ammo types. Fixes #3361.
+- Fixed incorrect specialisation requirement for the Death Dealer quality.
+- Fixed missing nuyen bp costs for the ShadowNET starter pack and Runnerhub Basic Gear Pack. Fixes #3368
+- The Auto Injector Expension and Killswitch are now properly addable to the Autoinjector as child objects. They've been renamed to Expanded Reservoir and Killswitch, respectively. Fixes #3365
+- Fixed issues with the Infected Optional Power qualities that prevented them being taken in create mode. Closes #3234
+- Implemented the lifestyle discount for the Community Connection quality. Closes #3372
+- Added a knowledge skill prompt for Zoology.
+- Allowed the Aware quality to permit taking Mentor Spirits.
+- The In Debt quality now reduces the karma that can be spent on nuyen, representing that the karma 'gained' through this quality has been spent on the increased nuyen, per RAW.
+- Fixed a crash when adding the Rockblood Signature Armored Shirt.
+- Fixed incorrect cost for the Fuchi Cyber-N.
+- Gameplayoptions entries can now specify qualitylimit; this sets the maximum amount of positive and negative karma that can be spent on qualities. If not specified, it will revert to using the karma value. 
+- Fixed incorrect Ammo strings on the Walther Secura Superkompakt, HK Urban Striker and HK DMR 11D.
+- Fixed incorrect AP value on the Trollbow's melee option. 
+- Altered the Regeneration critter power to permit Deltaware bioware.
+- Altered the Hand Razors and Hand Blade cyberwares to be limited by the number of arms a character has and be limited to being installed into things with fingers. Included a customdata file to remove this requirement.
+- Changed incorrect CHA defaults for the Xenosapient AI metavariant.
+- Fixed incorrect range and concealability on the Morrissey Elite. 
+
+New Strings:
+- Message_OrphanedImprovements
+- MessageTitle_OrphanedImprovements
+- Checkbox_Stolen
+- MenuFileSaveAsCreated
+
+Build 204
 
 Application Changes:
 
@@ -16,6 +142,33 @@ Application Changes:
 - Fixed incorrect behaviour for cyberware purchased via Black Market Pipeline not properly being discounted. Fixes #3244
 - Added basic functionality for the Sprite Pet from Kill Code. This is not currently restricted to the technoshaman archetype. 
 - Mildly ugly fix for cybersuites that come with cyberlimbs not properly being counted for attribute calculation.
+- Added a catch to prevent Chummer from crashing when updating if old files are still being held by other applications. Should fix #3250
+- The Digital Doppelganger quality now allows for Fake SINs as a requirement.
+- Added gear as a requirement check.
+- Added condition checks to critter power purchases separate to the existing catregory filtering. 
+- MetatypeRemovable metagenetic qualities now no longer count towards metagenetic limits. For example, Wakyambi with Surge don't have to remove their Celerity quality.
+- Fixed an issue with the Select Weapon window causing a crash if receiving incorrectly filtered strings. Fixes #3256
+- Fixed an issue with built-in weapons being incorrectly added to the first weapon mount in a list.
+- Fixed an issue with lifestyle multipliers that prevented them from calculating their cost correctly if they reduced the cost below 100%.
+- Fixed missing text changes for the Delete Metamagic button that prevented it updating properly for Technomancers. 
+- Fixed a potential crash when importing non-Technomancer characters from Herolab into Chummer.
+- Moved all Attribute references out of CharacterShared and into AttributeSection. 
+- Collapsed Special and Physical attributes into one list, since we weren't using them for any particular purpose anyway. 
+- Fixed an issue with MAG being removed incorrectly when using the Mystic Adept Second Attribute optional rule if the charactrer started with a magic attribute, such as shapeshifters. Fixes #3253
+- Fixed behaviour of plugins incorrectly applying their Essence costs in career mode instead of using the capacity cost. Should fix #3279, may have some additional edge cases.
+- Mildly ghetto workaround for inability to remove gear from a cyberware parent. Probably needs a more universal and robust fix, but it's functional.
+- Added a tooltip to the positive and negative quality labels to show where the karma costs have come from.
+- Fixed a crash when loading qualities and lifestyles in PACKS kits.
+- Added validation to ensure that custom drugs are given a name before they're accepted. 
+- Swapping a negative quality for a cheaper one no longer costs karma.
+- Purchasing Ammo for weapons that have a particular name restriction (Narcoject PEP firing peak-energy units, for example) will properly be filtered to that restriction in the Select Gear window.
+- Fixed an issue with removing fettered spirits not properly removing the Fettered magic loss. Will retroactively fix any affected characters on load.
+- Fixed an issue with loading the attribute section that caused it not to refresh attribute-dependent properties. 
+- Fixed an issue with vehicle locations that caused them to not work correctly. Some issues remain with adding children to locations inside vehicles, but root-level locations work as expected again.
+- Fixed regressions in behaviour of the Improvements tab not properly populating names or showing what they improve. 
+- Allowed multiple ammo slots for a single weapon to better support the Hammerli Gemini and Shiawase Arms Monsoon. Fixes #3312
+- Fixed an issue with inability to remove Gear from its parent.
+- Fixed behaviour of the WeaponCategoryDV Improvement when specifying names instead. Fixes a regression with the custom improvement not working correctly.
 
 Data Changes:
 
@@ -24,10 +177,32 @@ Data Changes:
 - Added content from the German-exclusive sourcebook "Hamburg".
 - Removed redundant 'Enable Spells and Spirits Tab' improvement. Closes #3189
 - Added an optional rule from Chrome Flesh to allow Trolls to treat their horns as per the bio-weapon on page 121 of Chrome Flesh. 
+- Fixed incorrect requirements for the Special Modifications and Prototype Materials qualities. 
+- The Dual Natured critter power now grants access to Astral Combat. Magical Guard now grants access to the Counterspelling skill. RAW implies this is correct, but I'm not super confident in it. Closes #3195
+- Added missing critter powers from Dark Terrors, courtesy of Keeper M. 
+- Per updated Runnerhub Rules, the Liminal bodies are now available and Armor enhancements can be added to skulls and torsos.
+- Fixed conditional behaviour on the Death Dealer quality to properly work for Mystic Adepts. Fixes #3255
+- Fixed an incorrect cost for Household Gremlins (1600 instead of 600).
+- Fixed incorrect costs for the Dermal Alteration (Rhino Hide) and Functional Tail (Prehensile) qualities. 
+- Added an amend file to allow the Practice, Practice, Practice quality to be taken multiple times, per German data changes.
+- Fixed incorrect ratings on the Fortified and Slick Willy booster chips.
+- Fixed a crash when selecting components of Commlink Functionality on gear. Fixes #3178
+- Fixed damage and AP of the Narcoject PEP. Fixes #3295
+- Fixed incorrect level limitation on the Mystic Aptituide power.
+- Reorganised weapons.xml data layout per XSD.
+- Added emergency vehicle from Stolen Souls, courtesy of Catpocalypse on Discord.
 
 New Strings:
 
 - Checkbox_DiceRoller_VariableGlitch
+- Message_CustomDrug_Name
+- MessageTitle_CustomDrug_Name
+- Tab_Options_Plugins
+- String_AvailablePlugins
+
+Changed Strings:
+
+- Checkbox_Options_PrintAllSkills
 
 Build 203
 

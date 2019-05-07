@@ -247,7 +247,7 @@
   <xsl:variable name="lang.Sustained"    select="'Aufrechterhaltend'"/>
   <xsl:variable name="lang.Swim"      select="'Schwimmen'"/>
   <xsl:variable name="lang.Target"    select="'Ziel'"/>
-  <xsl:variable name="lang.Tasks"    select="'Tasks'"/>
+  <xsl:variable name="lang.Tasks"    select="'Aufgaben'"/>
   <xsl:variable name="lang.Total"      select="'Summe'"/>
   <xsl:variable name="lang.Touch"      select="'Berührung'"/>
   <xsl:variable name="lang.Toxin"      select="'Toxin'"/>
@@ -305,7 +305,7 @@
   <xsl:variable name="lang.JudgeIntentions"  select="'Menschenkenntnis'"/>
   <xsl:variable name="lang.KnowledgeSkills"  select="'Wissensfertigkeiten'"/>
   <xsl:variable name="lang.LiftCarry"      select="'Heben/Tragen'"/>
-  <xsl:variable name="lang.LineofSight"    select="'Sichtlinie'"/>
+  <xsl:variable name="lang.LineofSight"    select="'Blickfeld'"/>
   <xsl:variable name="lang.LinkedSIN"      select="'Verbundene SIN'"/>
   <xsl:variable name="lang.MartialArt"    select="'Kampfkunst'"/>
   <xsl:variable name="lang.MartialArts"    select="'Kampfkünste'"/>

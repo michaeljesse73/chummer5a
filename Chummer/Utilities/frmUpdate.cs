@@ -27,6 +27,8 @@ using System.Reflection;
  using Application = System.Windows.Forms.Application;
  using MessageBox = System.Windows.Forms.MessageBox;
 using System.Collections.Generic;
+ using System.Linq;
+ using System.Threading;
 
 namespace Chummer
 {
@@ -79,7 +81,17 @@ namespace Chummer
             }
             Log.Info("frmUpdate_Load");
             Log.Info("Check Global Mutex for duplicate");
-            bool blnHasDuplicate = !Program.GlobalChummerMutex.WaitOne(0, false);
+            bool blnHasDuplicate = false;
+            try
+            {
+                blnHasDuplicate = !Program.GlobalChummerMutex.WaitOne(0, false);
+            }
+            catch (AbandonedMutexException ex)
+            {
+                Log.Exception(ex);
+                Utils.BreakIfDebug();
+                blnHasDuplicate = true;
+            }
             Log.Info("blnHasDuplicate = " + blnHasDuplicate.ToString());
             // If there is more than 1 instance running, do not let the application be updated.
             if (blnHasDuplicate)
@@ -604,11 +616,34 @@ namespace Chummer
             }
             if (blnDoRestart)
             {
-                foreach (string strFileToDelete in lstFilesToDelete)
+                List<string> lstBlocked = new List<string>();
+                foreach (var strFileToDelete in lstFilesToDelete)
                 {
-                    if (File.Exists(strFileToDelete))
-                        File.Delete(strFileToDelete);
+                    //TODO: This will quite likely leave some wreckage behind. Introduce a sleep and scream after x seconds. 
+                    if (!IsFileLocked(strFileToDelete))
+                        try
+                        {
+                            File.Delete(strFileToDelete);
+                        }
+                        catch (IOException)
+                        {
+                            lstBlocked.Add(strFileToDelete);
+                        }
+                    else
+                        Utils.BreakIfDebug();
                 }
+
+                /*TODO: It seems like the most likely cause here is that the ChummerHub plugin is holding onto the REST API dlls.
+                //      Investigate a solution for this; possibly do something to shut down plugins while updating.
+                //      Likely best option is a helper exe that caches opened characters and other relevant variables, relaunching after update is complete. 
+                 if (lstBlocked.Count > 0)
+                {
+                    var output = LanguageManager.GetString("Message_Files_Cannot_Be_Removed",
+                        GlobalOptions.Language);
+                    output = lstBlocked.Aggregate(output, (current, s) => current + Environment.NewLine + s);
+
+                    MessageBox.Show(output);
+                }*/
                 Utils.RestartApplication(GlobalOptions.Language, string.Empty);
             }
             else
@@ -658,6 +693,40 @@ namespace Chummer
                 MessageBox.Show(string.Format(LanguageManager.GetString("Warning_Update_CouldNotConnectException", GlobalOptions.Language), strException), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 cmdUpdate.Enabled = true;
             }
+        }
+
+        /// <summary>
+        /// Test if the file at a given path is accessible to write operations. 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>File is locked if True.</returns>
+        protected virtual bool IsFileLocked(string path)
+        {
+            try
+            {
+                File.Open(path, FileMode.Open);
+            }
+            catch (FileNotFoundException)
+            {
+                // File doesn't exist. 
+                return true;
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+            catch (Exception)
+            {
+                Utils.BreakIfDebug();
+                return true;
+            }
+
+            //file is not locked
+            return false;
         }
 
         #region AsyncDownload Events

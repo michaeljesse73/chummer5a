@@ -73,8 +73,6 @@ namespace Chummer
                 objXmlMentor = _xmlBaseMentorSpiritDataNode.SelectSingleNode("mentors/mentor[id = \"" + lstMentor.SelectedValue + "\"]");
             if (objXmlMentor != null)
             {
-                chkMentorMask.Visible = _blnEverShowMentorMask;
-                
                 cboChoice1.BeginUpdate();
                 cboChoice2.BeginUpdate();
                 cboChoice1.DataSource = null;
@@ -115,6 +113,10 @@ namespace Chummer
                     {
                         cboChoice2.Visible = false;
                     }
+
+                    cboChoice1.Visible = lstChoice1.Count > 0;
+                    cboChoice1.Enabled = lstChoice1.Count > 1;
+                    cboChoice2.Enabled = lstChoice2.Count > 1;
                 }
                 else
                 {
@@ -146,7 +148,6 @@ namespace Chummer
             }
             else
             {
-                chkMentorMask.Visible = false;
                 lblAdvantageLabel.Visible = false;
                 lblAdvantage.Text = string.Empty;
                 lblDisadvantageLabel.Visible = false;
@@ -196,11 +197,6 @@ namespace Chummer
         /// Second choice that was selected in the dialogue.
         /// </summary>
         public string Choice2 => cboChoice2.SelectedValue?.ToString() ?? string.Empty;
-
-        /// <summary>
-        /// Whether the character manifests the Mentor's Mask. Used externally to create improvements.
-        /// </summary>
-        public bool MentorsMask => chkMentorMask.Checked;
         #endregion
 
         #region Methods

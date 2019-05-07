@@ -44,8 +44,6 @@ namespace Chummer
     public class CharacterShared : Form
     {
         private readonly Character _objCharacter;
-        private readonly ObservableCollection<CharacterAttrib> _lstPrimaryAttributes;
-        private readonly ObservableCollection<CharacterAttrib> _lstSpecialAttributes;
         private readonly CharacterOptions _objOptions;
         private bool _blnIsDirty;
         private bool _blnIsRefreshing;
@@ -56,37 +54,6 @@ namespace Chummer
         {
             _objCharacter = objCharacter;
             _objOptions = _objCharacter.Options;
-
-            _lstPrimaryAttributes = new ObservableCollection<CharacterAttrib>
-            {
-                CharacterObject.BOD,
-                CharacterObject.AGI,
-                CharacterObject.REA,
-                CharacterObject.STR,
-                CharacterObject.CHA,
-                CharacterObject.INT,
-                CharacterObject.LOG,
-                CharacterObject.WIL
-            };
-
-            _lstSpecialAttributes = new ObservableCollection<CharacterAttrib>
-            {
-                CharacterObject.EDG
-            };
-            if (CharacterObject.MAGEnabled)
-            {
-                _lstSpecialAttributes.Add(CharacterObject.MAG);
-                if (CharacterObjectOptions.MysAdeptSecondMAGAttribute && CharacterObject.IsMysticAdept)
-                    _lstSpecialAttributes.Add(CharacterObject.MAGAdept);
-            }
-            if (CharacterObject.RESEnabled)
-            {
-                _lstSpecialAttributes.Add(CharacterObject.RES);
-            }
-            if (CharacterObject.DEPEnabled)
-            {
-                _lstSpecialAttributes.Add(CharacterObject.DEP);
-            }
         }
 
         [Obsolete("This constructor is for use by form designers only.", true)]
@@ -172,7 +139,7 @@ namespace Chummer
             if (string.IsNullOrEmpty(strShowFileName))
                 strShowFileName = _objCharacter.CharacterName;
             string strFilePath = Path.Combine(strAutosavePath, strShowFileName);
-            _objCharacter.Save(strFilePath);
+            _objCharacter.Save(strFilePath, false, false);
             Cursor = objOldCursor;
             AutosaveStopWatch.Restart();
         }
@@ -251,7 +218,7 @@ namespace Chummer
                 pnlAttributes.SuspendLayout();
                 pnlAttributes.Controls.Clear();
 
-                foreach (CharacterAttrib objAttrib in _lstPrimaryAttributes.Concat(_lstSpecialAttributes))
+                foreach (CharacterAttrib objAttrib in CharacterObject.AttributeSection.Attributes)
                 {
                     AttributeControl objControl = new AttributeControl(objAttrib);
                     objControl.ValueChanged += MakeDirtyWithCharacterUpdate;
@@ -370,7 +337,7 @@ namespace Chummer
                     }
                     AddToTree(objSpell, false);
                 }
-                treSpells.SortCustom(strSelectedId);
+                treSpells.SortCustomAlphabetically(strSelectedId);
                 treMetamagic.SelectedNode = treMetamagic.FindNode(strSelectedMetamagicId);
             }
             else
@@ -622,7 +589,7 @@ namespace Chummer
                     AddToTree(objAIProgram, false);
                 }
 
-                treAIPrograms.SortCustom(strSelectedId);
+                treAIPrograms.SortCustomAlphabetically(strSelectedId);
             }
             else
             {
@@ -742,7 +709,7 @@ namespace Chummer
                     AddToTree(objComplexForm, false);
                 }
 
-                treComplexForms.SortCustom(strSelectedId);
+                treComplexForms.SortCustomAlphabetically(strSelectedId);
                 treMetamagic.SelectedNode = treMetamagic.FindNode(strSelectedMetamagicId);
             }
             else
@@ -1518,7 +1485,7 @@ namespace Chummer
                     AddToTree(objPower, false);
                 }
 
-                treCritterPowers.SortCustom(strSelectedId);
+                treCritterPowers.SortCustomAlphabetically(strSelectedId);
             }
             else
             {
@@ -1658,19 +1625,19 @@ namespace Chummer
                 HashSet<string> strQualitiesToPrint = new HashSet<string>();
                 foreach (Quality objQuality in _objCharacter.Qualities)
                 {
-                    strQualitiesToPrint.Add(objQuality.QualityId + '|' + objQuality.GetSourceName(GlobalOptions.Language) + '|' + objQuality.Extra);
+                    strQualitiesToPrint.Add(objQuality.SourceIDString + '|' + objQuality.GetSourceName(GlobalOptions.Language) + '|' + objQuality.Extra);
                 }
 
                 // Add Qualities
                 foreach (Quality objQuality in _objCharacter.Qualities)
                 {
-                    if (!strQualitiesToPrint.Remove(objQuality.QualityId + '|' + objQuality.GetSourceName(GlobalOptions.Language) + '|' + objQuality.Extra))
+                    if (!strQualitiesToPrint.Remove(objQuality.SourceIDString + '|' + objQuality.GetSourceName(GlobalOptions.Language) + '|' + objQuality.Extra))
                         continue;
 
                     AddToTree(objQuality, false);
                 }
 
-                treQualities.SortCustom(strSelectedNode);
+                treQualities.SortCustomAlphabetically(strSelectedNode);
             }
             else
             {
@@ -1844,7 +1811,7 @@ namespace Chummer
                     objQualityNode.Text = ((Quality)objQualityNode.Tag).DisplayName(GlobalOptions.CultureInfo, GlobalOptions.Language);
                 }
             }
-            treQualities.SortCustom(objSelectedNode?.Tag);
+            treQualities.SortCustomAlphabetically(objSelectedNode?.Tag);
         }
 
         /// <summary>
@@ -1865,6 +1832,49 @@ namespace Chummer
                 }
             }
         }
+        #region Locations        
+        protected void RefreshArmorLocations(TreeView treArmor, ContextMenuStrip cmsArmorLocation, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+        {
+            if (notifyCollectionChangedEventArgs == null)
+                return;
+
+            string strSelectedId = (treArmor.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
+            
+            TreeNode nodRoot = treArmor.FindNode("Node_SelectedImprovements", false);
+            RefreshLocation(treArmor, nodRoot, cmsArmorLocation, notifyCollectionChangedEventArgs, _objCharacter.ArmorLocations, strSelectedId, "Node_SelectedArmor");
+        }
+
+        protected void RefreshGearLocations(TreeView treGear, ContextMenuStrip cmsGearLocation, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+        {
+            if (notifyCollectionChangedEventArgs == null)
+                return;
+
+            string strSelectedId = (treGear.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
+
+            TreeNode nodRoot = treGear.FindNode("Node_SelectedGear", false);
+            RefreshLocation(treGear, nodRoot, cmsGearLocation, notifyCollectionChangedEventArgs, _objCharacter.GearLocations, strSelectedId, "Node_SelectedGear");
+        }
+
+        protected void RefreshVehicleLocations(TreeView treVehicles, ContextMenuStrip cmsVehicleLocation, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+        {
+            if (notifyCollectionChangedEventArgs == null)
+                return;
+
+            TreeNode nodRoot = treVehicles.FindNode("Node_SelectedVehicles", false);
+            string strSelectedId = (treVehicles.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
+            RefreshLocation(treVehicles, nodRoot, cmsVehicleLocation, notifyCollectionChangedEventArgs, _objCharacter.VehicleLocations, strSelectedId, "Node_SelectedVehicles");
+        }
+        protected void RefreshLocationsInVehicle(TreeView treVehicles, Vehicle objVehicle, ContextMenuStrip cmsVehicleLocation, Func<int> funcOffset, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+        {
+            if (notifyCollectionChangedEventArgs == null)
+                return;
+
+            string strSelectedId = (treVehicles.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
+
+            TreeNode nodRoot = treVehicles.FindNodeByTag(objVehicle);
+            RefreshLocation(treVehicles, nodRoot, cmsVehicleLocation, funcOffset, notifyCollectionChangedEventArgs,
+                objVehicle.Locations, strSelectedId, "Node_SelectedVehicles", false);
+        }
 
         protected void RefreshWeaponLocations(TreeView treWeapons, ContextMenuStrip cmsWeaponLocation, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
         {
@@ -1874,45 +1884,62 @@ namespace Chummer
             string strSelectedId = (treWeapons.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
 
             TreeNode nodRoot = treWeapons.FindNode("Node_SelectedWeapons", false);
+            RefreshLocation(treWeapons, nodRoot, cmsWeaponLocation, notifyCollectionChangedEventArgs, _objCharacter.WeaponLocations, strSelectedId, "Node_SelectedWeapons");
+        }
+
+        protected void RefreshCustomImprovementLocations(TreeView treImprovements, ContextMenuStrip cmsImprovementLocation, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+        {
+            if (notifyCollectionChangedEventArgs == null)
+                return;
+
+            string strSelectedId = (treImprovements.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
+
+            TreeNode nodRoot = treImprovements.FindNode("Node_SelectedImprovements", false);
 
             switch (notifyCollectionChangedEventArgs.Action)
             {
                 case NotifyCollectionChangedAction.Add:
                     {
                         int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
+                        foreach (string strLocation in notifyCollectionChangedEventArgs.NewItems)
                         {
-                            treWeapons.Nodes.Insert(intNewIndex, objLocation.CreateTreeNode(cmsWeaponLocation));
+                            TreeNode objLocation = new TreeNode
+                            {
+                                Tag = strLocation,
+                                Text = strLocation,
+                                ContextMenuStrip = cmsImprovementLocation
+                            };
+                            treImprovements.Nodes.Insert(intNewIndex, objLocation);
                             intNewIndex += 1;
                         }
                     }
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     {
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
+                        foreach (string strLocation in notifyCollectionChangedEventArgs.OldItems)
                         {
-                            TreeNode nodLocation = treWeapons.FindNodeByTag(objLocation, false);
-                            if (nodLocation != null)
+                            TreeNode objNode = treImprovements.FindNodeByTag(strLocation, false);
+                            if (objNode != null)
                             {
-                                if (nodLocation.Nodes.Count > 0)
+                                objNode.Remove();
+                                if (objNode.Nodes.Count > 0)
                                 {
                                     if (nodRoot == null)
                                     {
                                         nodRoot = new TreeNode
                                         {
-                                            Tag = "Node_SelectedWeapons",
-                                            Text = LanguageManager.GetString("Node_SelectedWeapons", GlobalOptions.Language)
+                                            Tag = "Node_SelectedImprovements",
+                                            Text = LanguageManager.GetString("Node_SelectedImprovements", GlobalOptions.Language)
                                         };
-                                        treWeapons.Nodes.Insert(0, nodRoot);
+                                        treImprovements.Nodes.Insert(0, nodRoot);
                                     }
-                                    for (int i = nodLocation.Nodes.Count - 1; i >= 0; --i)
+                                    for (int i = objNode.Nodes.Count - 1; i >= 0; --i)
                                     {
-                                        TreeNode nodWeapon = nodLocation.Nodes[i];
-                                        nodWeapon.Remove();
-                                        nodRoot.Nodes.Add(nodWeapon);
+                                        TreeNode nodImprovement = objNode.Nodes[i];
+                                        nodImprovement.Remove();
+                                        nodRoot.Nodes.Add(nodImprovement);
                                     }
                                 }
-                                objLocation.Remove(_objCharacter);
                             }
                         }
                     }
@@ -1920,15 +1947,15 @@ namespace Chummer
                 case NotifyCollectionChangedAction.Replace:
                     {
                         int intNewItemsIndex = 0;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
+                        foreach (string strLocation in notifyCollectionChangedEventArgs.OldItems)
                         {
-                            TreeNode objNode = treWeapons.FindNodeByTag(objLocation, false);
+                            TreeNode objNode = treImprovements.FindNodeByTag(strLocation, false);
                             if (objNode != null)
                             {
-                                if (notifyCollectionChangedEventArgs.NewItems[intNewItemsIndex] is Location objNewLocation)
+                                if (notifyCollectionChangedEventArgs.NewItems[intNewItemsIndex] is string objNewLocation)
                                 {
                                     objNode.Tag = objNewLocation;
-                                    objNode.Text = objNewLocation.DisplayName(GlobalOptions.Language);
+                                    objNode.Text = objNewLocation;
                                 }
                                 intNewItemsIndex += 1;
                             }
@@ -1937,23 +1964,23 @@ namespace Chummer
                     break;
                 case NotifyCollectionChangedAction.Move:
                     {
-                        List<Tuple<Location, TreeNode>> lstMoveNodes = new List<Tuple<Location, TreeNode>>();
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
+                        List<Tuple<string, TreeNode>> lstMoveNodes = new List<Tuple<string, TreeNode>>();
+                        foreach (string strLocation in notifyCollectionChangedEventArgs.OldItems)
                         {
-                            TreeNode objNode = treWeapons.FindNodeByTag(objLocation, false);
+                            TreeNode objLocation = treImprovements.FindNode(strLocation, false);
                             if (objLocation != null)
                             {
-                                lstMoveNodes.Add(new Tuple<Location, TreeNode>(objLocation, objNode));
-                                objLocation.Remove(_objCharacter,false);
+                                lstMoveNodes.Add(new Tuple<string, TreeNode>(strLocation, objLocation));
+                                objLocation.Remove();
                             }
                         }
                         int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
+                        foreach (string strLocation in notifyCollectionChangedEventArgs.NewItems)
                         {
-                            Tuple<Location, TreeNode> objLocationTuple = lstMoveNodes.FirstOrDefault(x => x.Item1 == objLocation);
+                            Tuple<string, TreeNode> objLocationTuple = lstMoveNodes.FirstOrDefault(x => x.Item1 == strLocation);
                             if (objLocationTuple != null)
                             {
-                                treWeapons.Nodes.Insert(intNewIndex, objLocationTuple.Item2);
+                                treImprovements.Nodes.Insert(intNewIndex, objLocationTuple.Item2);
                                 intNewIndex += 1;
                                 lstMoveNodes.Remove(objLocationTuple);
                             }
@@ -1962,37 +1989,184 @@ namespace Chummer
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     {
-                        foreach (Location objLocation in _objCharacter.WeaponLocations)
+                        foreach (string strLocation in _objCharacter.ImprovementGroups)
                         {
-                            TreeNode nodLocation = treWeapons.FindNode(objLocation?.InternalId, false);
-                            if (nodLocation == null)
-                                continue;
-                            if (nodLocation.Nodes.Count > 0)
+                            TreeNode objLocation = treImprovements.FindNode(strLocation, false);
+                            if (objLocation != null)
                             {
-                                if (nodRoot == null)
+                                objLocation.Remove();
+                                if (objLocation.Nodes.Count > 0)
                                 {
-                                    nodRoot = new TreeNode
+                                    if (nodRoot == null)
                                     {
-                                        Tag = "Node_SelectedWeapons",
-                                        Text = LanguageManager.GetString("Node_SelectedWeapons", GlobalOptions.Language)
-                                    };
-                                    treWeapons.Nodes.Insert(0, nodRoot);
-                                }
-                                for (int i = nodLocation.Nodes.Count - 1; i >= 0; --i)
-                                {
-                                    TreeNode nodWeapon = nodLocation.Nodes[i];
-                                    nodWeapon.Remove();
-                                    nodRoot.Nodes.Add(nodWeapon);
+                                        nodRoot = new TreeNode
+                                        {
+                                            Tag = "Node_SelectedImprovements",
+                                            Text = LanguageManager.GetString("Node_SelectedImprovements", GlobalOptions.Language)
+                                        };
+                                        treImprovements.Nodes.Insert(0, nodRoot);
+                                    }
+                                    for (int i = objLocation.Nodes.Count - 1; i >= 0; --i)
+                                    {
+                                        TreeNode nodImprovement = objLocation.Nodes[i];
+                                        nodImprovement.Remove();
+                                        nodRoot.Nodes.Add(nodImprovement);
+                                    }
                                 }
                             }
-                            objLocation?.Remove(_objCharacter);
                         }
                     }
                     break;
             }
 
-            treWeapons.SelectedNode = treWeapons.FindNode(strSelectedId);
+            treImprovements.SelectedNode = treImprovements.FindNode(strSelectedId);
         }
+
+        private void RefreshLocation(TreeView treSelected, TreeNode nodRoot, ContextMenuStrip cmsLocation,
+            NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs,
+            ObservableCollection<Location> collection, string strSelectedId, string strNodeName)
+        {
+            RefreshLocation(treSelected, nodRoot, cmsLocation, () => 0, notifyCollectionChangedEventArgs, collection, strSelectedId, strNodeName);
+        }
+
+        private void RefreshLocation(TreeView treSelected, TreeNode nodRoot, ContextMenuStrip cmsLocation,
+            Func<int> funcOffset,
+            NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs,
+            ObservableCollection<Location> collection, string strSelectedId, string strNodeName,
+            bool rootSibling = true)
+        {
+            switch (notifyCollectionChangedEventArgs.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                {
+                    int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
+                    if (funcOffset != null)
+                        intNewIndex += funcOffset.Invoke();
+                        foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
+                    {
+                        if (rootSibling)
+                        {
+                            treSelected.Nodes.Insert(intNewIndex, objLocation.CreateTreeNode(cmsLocation));
+                        }
+                        else
+                        {
+                            nodRoot.Nodes.Insert(intNewIndex, objLocation.CreateTreeNode(cmsLocation));
+                        }
+
+                        intNewIndex += 1;
+                    }
+                }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                {
+                    foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
+                    {
+                        TreeNode nodLocation = treSelected.FindNodeByTag(objLocation, false);
+                        if (nodLocation == null) continue;
+                        if (nodLocation.Nodes.Count > 0)
+                        {
+                            if (nodRoot == null)
+                            {
+                                nodRoot = new TreeNode
+                                {
+                                    Tag = strNodeName,
+                                    Text = LanguageManager.GetString(strNodeName, GlobalOptions.Language)
+                                };
+                                treSelected.Nodes.Insert(0, nodRoot);
+                            }
+
+                            for (int i = nodLocation.Nodes.Count - 1; i >= 0; --i)
+                            {
+                                TreeNode nodWeapon = nodLocation.Nodes[i];
+                                nodWeapon.Remove();
+                                nodRoot.Nodes.Add(nodWeapon);
+                            }
+                        }
+                        nodLocation.Remove();
+                    }
+                }
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                {
+                    int intNewItemsIndex = 0;
+                    foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
+                    {
+                        TreeNode objNode = treSelected.FindNodeByTag(objLocation, false);
+                        if (objNode != null)
+                        {
+                            if (notifyCollectionChangedEventArgs.NewItems[intNewItemsIndex] is Location objNewLocation)
+                            {
+                                objNode.Tag = objNewLocation;
+                                objNode.Text = objNewLocation.DisplayName(GlobalOptions.Language);
+                            }
+
+                            intNewItemsIndex += 1;
+                        }
+                    }
+                }
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                {
+                    List<Tuple<Location, TreeNode>> lstMoveNodes = new List<Tuple<Location, TreeNode>>();
+                    foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
+                    {
+                        TreeNode objNode = treSelected.FindNodeByTag(objLocation, false);
+                        if (objLocation != null)
+                        {
+                            lstMoveNodes.Add(new Tuple<Location, TreeNode>(objLocation, objNode));
+                            objLocation.Remove(_objCharacter, false);
+                        }
+                    }
+
+                    int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
+                    foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
+                    {
+                        Tuple<Location, TreeNode> objLocationTuple = lstMoveNodes.FirstOrDefault(x => x.Item1 == objLocation);
+                        if (objLocationTuple != null)
+                        {
+                            treSelected.Nodes.Insert(intNewIndex, objLocationTuple.Item2);
+                            intNewIndex += 1;
+                            lstMoveNodes.Remove(objLocationTuple);
+                        }
+                    }
+                }
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                {
+                    foreach (Location objLocation in _objCharacter.WeaponLocations)
+                    {
+                        TreeNode nodLocation = treSelected.FindNode(objLocation?.InternalId, false);
+                        if (nodLocation == null)
+                            continue;
+                        if (nodLocation.Nodes.Count > 0)
+                        {
+                            if (nodRoot == null)
+                            {
+                                nodRoot = new TreeNode
+                                {
+                                    Tag = strNodeName,
+                                    Text = LanguageManager.GetString(strNodeName, GlobalOptions.Language)
+                                };
+                                treSelected.Nodes.Insert(0, nodRoot);
+                            }
+
+                            for (int i = nodLocation.Nodes.Count - 1; i >= 0; --i)
+                            {
+                                TreeNode nodWeapon = nodLocation.Nodes[i];
+                                nodWeapon.Remove();
+                                nodRoot.Nodes.Add(nodWeapon);
+                            }
+                        }
+
+                        objLocation?.Remove(_objCharacter);
+                    }
+                }
+                    break;
+            }
+
+            treSelected.SelectedNode = treSelected.FindNode(strSelectedId);
+        }
+        #endregion
 
         protected void RefreshWeapons(TreeView treWeapons, ContextMenuStrip cmsWeaponLocation, ContextMenuStrip cmsWeapon, ContextMenuStrip cmsWeaponAccessory, ContextMenuStrip cmsWeaponAccessoryGear, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs = null)
         {
@@ -2014,6 +2188,8 @@ namespace Chummer
                     AddToTree(objWeapon, -1, false);
                     objWeapon.SetupChildrenWeaponsCollectionChanged(true, treWeapons, cmsWeapon, cmsWeaponAccessory, cmsWeaponAccessoryGear);
                 }
+
+
 
                 treWeapons.SelectedNode = treWeapons.FindNode(strSelectedId);
             }
@@ -2129,142 +2305,6 @@ namespace Chummer
             }
         }
         
-        protected void RefreshArmorLocations(TreeView treArmor, ContextMenuStrip cmsArmorLocation, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
-        {
-            if (notifyCollectionChangedEventArgs == null)
-                return;
-
-            string strSelectedId = (treArmor.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
-
-            TreeNode nodRoot = treArmor.FindNode("Node_SelectedArmor", false);
-
-            switch (notifyCollectionChangedEventArgs.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    {
-                        int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
-                        {
-                            TreeNode objNode = new TreeNode
-                            {
-                                Tag = objLocation,
-                                Text = objLocation.DisplayName(GlobalOptions.Language),
-                                ContextMenuStrip = cmsArmorLocation
-                            };
-                            treArmor.Nodes.Insert(intNewIndex, objNode);
-                            intNewIndex += 1;
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    {
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treArmor.FindNode(objLocation.InternalId, false) ?? treArmor.FindNodeByTag(objLocation);
-                            if (objNode != null)
-                            {
-                                objNode.Remove();
-                                if (objNode.Nodes.Count > 0)
-                                {
-                                    if (nodRoot == null)
-                                    {
-                                        nodRoot = new TreeNode
-                                        {
-                                            Tag = "Node_SelectedArmor",
-                                            Text = LanguageManager.GetString("Node_SelectedArmor", GlobalOptions.Language)
-                                        };
-                                        treArmor.Nodes.Insert(0, nodRoot);
-                                    }
-                                    for (int i = objNode.Nodes.Count - 1; i >= 0; --i)
-                                    {
-                                        TreeNode nodArmor = objNode.Nodes[i];
-                                        nodArmor.Remove();
-                                        nodRoot.Nodes.Add(nodArmor);
-                                    }
-                                }
-                            }
-                            objLocation.Remove(_objCharacter, false);
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    {
-                        int intNewItemsIndex = 0;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treArmor.FindNode(objLocation.InternalId, false);
-                            if (objNode != null)
-                            {
-                                if (notifyCollectionChangedEventArgs.NewItems[intNewItemsIndex] is Location objNewLocation)
-                                {
-                                    objNode.Tag = objNewLocation;
-                                    objNode.Text = objNewLocation.DisplayName(GlobalOptions.Language);
-                                }
-                                intNewItemsIndex += 1;
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    {
-                        List<Tuple<Location, TreeNode>> lstMoveNodes = new List<Tuple<Location, TreeNode>>();
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treArmor.FindNode(objLocation.InternalId, false);
-                            if (objNode != null)
-                            {
-                                lstMoveNodes.Add(new Tuple<Location, TreeNode>(objLocation, objNode));
-                                objNode.Remove();
-                            }
-                        }
-                        int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
-                        {
-                            Tuple<Location, TreeNode> objLocationTuple = lstMoveNodes.FirstOrDefault(x => x.Item1 == objLocation);
-                            if (objLocationTuple != null)
-                            {
-                                treArmor.Nodes.Insert(intNewIndex, objLocationTuple.Item2);
-                                intNewIndex += 1;
-                                lstMoveNodes.Remove(objLocationTuple);
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    {
-                        foreach (Location objLocation in _objCharacter.ArmorLocations)
-                        {
-                            TreeNode nodLocation = treArmor.FindNode(objLocation?.InternalId, false);
-                            if (nodLocation != null)
-                            {
-                                if (nodLocation.Nodes.Count > 0)
-                                {
-                                    if (nodRoot == null)
-                                    {
-                                        nodRoot = new TreeNode
-                                        {
-                                            Tag = "Node_SelectedArmor",
-                                            Text = LanguageManager.GetString("Node_SelectedArmor", GlobalOptions.Language)
-                                        };
-                                        treArmor.Nodes.Insert(0, nodRoot);
-                                    }
-                                    for (int i = nodLocation.Nodes.Count - 1; i >= 0; --i)
-                                    {
-                                        TreeNode nodArmor = nodLocation.Nodes[i];
-                                        nodArmor.Remove();
-                                        nodRoot.Nodes.Add(nodArmor);
-                                    }
-                                }
-                                objLocation?.Remove(CharacterObject);
-                            }
-                        }
-                    }
-                    break;
-            }
-
-            treArmor.SelectedNode = treArmor.FindNode(strSelectedId);
-        }
-
         protected void RefreshArmor(TreeView treArmor, ContextMenuStrip cmsArmorLocation, ContextMenuStrip cmsArmor, ContextMenuStrip cmsArmorMod, ContextMenuStrip cmsArmorGear, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs = null)
         {
             string strSelectedId = (treArmor.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
@@ -2541,144 +2581,6 @@ namespace Chummer
             }
         }
 
-        protected void RefreshGearLocations(TreeView treGear, ContextMenuStrip cmsGearLocation, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
-        {
-            if (notifyCollectionChangedEventArgs == null)
-                return;
-
-            string strSelectedId = (treGear.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
-
-            TreeNode nodRoot = treGear.FindNode("Node_SelectedGear", false);
-
-            switch (notifyCollectionChangedEventArgs.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    {
-                        int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
-                        {
-                            TreeNode objNode = new TreeNode
-                            {
-                                Tag = objLocation,
-                                Text = objLocation.DisplayName(GlobalOptions.Language),
-                                ContextMenuStrip = cmsGearLocation
-                            };
-                            treGear.Nodes.Insert(intNewIndex, objNode);
-                            intNewIndex += 1;
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    {
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treGear.FindNodeByTag(objLocation, false);
-                            if (objNode != null)
-                            {
-                                objNode.Remove();
-                                if (objNode.Nodes.Count > 0)
-                                {
-                                    if (nodRoot == null)
-                                    {
-                                        nodRoot = new TreeNode
-                                        {
-                                            Tag = "Node_SelectedGear",
-                                            Text = LanguageManager.GetString("Node_SelectedGear", GlobalOptions.Language)
-                                        };
-                                        treGear.Nodes.Insert(0, nodRoot);
-                                    }
-                                    for (int i = objNode.Nodes.Count - 1; i >= 0; --i)
-                                    {
-                                        TreeNode nodArmor = objNode.Nodes[i];
-                                        nodArmor.Remove();
-                                        nodRoot.Nodes.Add(nodArmor);
-                                    }
-                                }
-                            }
-                            objLocation.Remove(_objCharacter);
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    {
-                        int intNewItemsIndex = 0;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treGear.FindNodeByTag(objLocation, false);
-                            if (objLocation != null)
-                            {
-                                if (notifyCollectionChangedEventArgs.NewItems[intNewItemsIndex] is Location objNewLocation)
-                                {
-                                    objNode.Tag = objNewLocation;
-                                    objNode.Text = objNewLocation.DisplayName(GlobalOptions.Language);
-                                }
-                                intNewItemsIndex += 1;
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    {
-                        List<Tuple<Location, TreeNode>> lstMoveNodes = new List<Tuple<Location, TreeNode>>();
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treGear.FindNodeByTag(objLocation, false);
-                            if (objLocation != null)
-                            {
-                                lstMoveNodes.Add(new Tuple<Location, TreeNode>(objLocation, objNode));
-                                objNode.Remove();
-                            }
-                        }
-                        int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
-                        {
-                            Tuple<Location, TreeNode> objLocationTuple = lstMoveNodes.FirstOrDefault(x => x.Item1 == objLocation);
-                            if (objLocationTuple != null)
-                            {
-                                treGear.Nodes.Insert(intNewIndex, objLocationTuple.Item2);
-                                intNewIndex += 1;
-                                lstMoveNodes.Remove(objLocationTuple);
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    {
-                        foreach (Location objLocation in _objCharacter.GearLocations)
-                        {
-                            TreeNode nodLocation = treGear.FindNodeByTag(objLocation, false);
-                            if (nodLocation != null)
-                            {
-                                nodLocation.Remove();
-                                if (nodLocation.Nodes.Count > 0)
-                                {
-                                    if (nodRoot == null)
-                                    {
-                                        nodRoot = new TreeNode
-                                        {
-                                            Tag = "Node_SelectedGear",
-                                            Text = LanguageManager.GetString("Node_SelectedGear", GlobalOptions.Language)
-                                        };
-                                        treGear.Nodes.Insert(0, nodRoot);
-                                    }
-                                    for (int i = nodLocation.Nodes.Count - 1; i >= 0; --i)
-                                    {
-                                        TreeNode nodGear = nodLocation.Nodes[i];
-                                        nodGear.Remove();
-                                        nodRoot.Nodes.Add(nodGear);
-                                    }
-                                }
-                            }
-
-                            _objCharacter.GearLocations.Remove(objLocation);
-                        }
-                    }
-                    break;
-            }
-
-            treGear.SelectedNode = treGear.FindNode(strSelectedId);
-        }
-
         protected void RefreshGears(TreeView treGear, ContextMenuStrip cmsGearLocation, ContextMenuStrip cmsGear, bool blnCommlinksOnly, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs = null)
         {
             string strSelectedId = (treGear.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
@@ -2932,7 +2834,7 @@ namespace Chummer
                     objCyberware.SetupChildrenCyberwareCollectionChanged(true, treCyberware, cmsCyberware, cmsCyberwareGear);
                 }
 
-                treCyberware.SortCustom(strSelectedId);
+                treCyberware.SortCustomAlphabetically(strSelectedId);
             }
             else
             {
@@ -3104,257 +3006,6 @@ namespace Chummer
                         nodParent.Nodes.Add(objNode);
                 }
             }
-        }
-        
-        protected void RefreshVehicleLocations(TreeView treVehicles, ContextMenuStrip cmsVehicleLocation, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
-        {
-            if (notifyCollectionChangedEventArgs == null)
-                return;
-
-            string strSelectedId = (treVehicles.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
-
-            TreeNode nodRoot = treVehicles.FindNode("Node_SelectedVehicles", false);
-
-            switch (notifyCollectionChangedEventArgs.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    {
-                        int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
-                        {
-                            TreeNode objNode = new TreeNode
-                            {
-                                Tag = objLocation,
-                                Text = objLocation.DisplayName(GlobalOptions.Language),
-                                ContextMenuStrip = cmsVehicleLocation
-                            };
-                            treVehicles.Nodes.Insert(intNewIndex, objNode);
-                            intNewIndex += 1;
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    {
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treVehicles.FindNodeByTag(objLocation, false);
-                            if (objNode != null)
-                            {
-                                objNode.Remove();
-                                if (objNode.Nodes.Count > 0)
-                                {
-                                    if (nodRoot == null)
-                                    {
-                                        nodRoot = new TreeNode
-                                        {
-                                            Tag = "Node_SelectedVehicles",
-                                            Text = LanguageManager.GetString("Node_SelectedVehicles", GlobalOptions.Language)
-                                        };
-                                        treVehicles.Nodes.Insert(0, nodRoot);
-                                    }
-                                    for (int i = objNode.Nodes.Count - 1; i >= 0; --i)
-                                    {
-                                        TreeNode nodArmor = objNode.Nodes[i];
-                                        nodArmor.Remove();
-                                        nodRoot.Nodes.Add(nodArmor);
-                                    }
-                                }
-                            }
-                            objLocation.Remove(_objCharacter);
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    {
-                        int intNewItemsIndex = 0;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treVehicles.FindNodeByTag(objLocation, false);
-                            if (objLocation != null)
-                            {
-                                if (notifyCollectionChangedEventArgs.NewItems[intNewItemsIndex] is Location objNewLocation)
-                                {
-                                    objNode.Tag = objNewLocation;
-                                    objNode.Text = objNewLocation.DisplayName(GlobalOptions.Language);
-                                }
-                                intNewItemsIndex += 1;
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    {
-                        List<Tuple<Location, TreeNode>> lstMoveNodes = new List<Tuple<Location, TreeNode>>();
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treVehicles.FindNodeByTag(objLocation, false);
-                            if (objLocation != null)
-                            {
-                                lstMoveNodes.Add(new Tuple<Location, TreeNode>(objLocation, objNode));
-                                objNode.Remove();
-                            }
-                        }
-                        int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
-                        {
-                            Tuple<Location, TreeNode> objLocationTuple = lstMoveNodes.FirstOrDefault(x => x.Item1 == objLocation);
-                            if (objLocationTuple != null)
-                            {
-                                treVehicles.Nodes.Insert(intNewIndex, objLocationTuple.Item2);
-                                intNewIndex += 1;
-                                lstMoveNodes.Remove(objLocationTuple);
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    {
-                        foreach (Location objLocation in _objCharacter.WeaponLocations)
-                        {
-                            TreeNode nodLocation = treVehicles.FindNodeByTag(objLocation, false);
-                            if (nodLocation == null) continue;
-                            if (nodLocation.Nodes.Count > 0)
-                            {
-                                if (nodRoot == null)
-                                {
-                                    nodRoot = new TreeNode
-                                    {
-                                        Tag = "Node_SelectedVehicles",
-                                        Text = LanguageManager.GetString("Node_SelectedVehicles", GlobalOptions.Language)
-                                    };
-                                    treVehicles.Nodes.Insert(0, nodRoot);
-                                }
-                                for (int i = nodLocation.Nodes.Count - 1; i >= 0; --i)
-                                {
-                                    TreeNode nodWeapon = nodLocation.Nodes[i];
-                                    nodWeapon.Remove();
-                                    nodRoot.Nodes.Add(nodWeapon);
-                                }
-                            }
-                            objLocation.Remove(_objCharacter);
-                        }
-                    }
-                    break;
-            }
-
-            treVehicles.SelectedNode = treVehicles.FindNode(strSelectedId);
-        }
-
-        protected void RefreshLocationsInVehicle(TreeView treVehicles, Vehicle objVehicle, ContextMenuStrip cmsVehicleLocation, Func<int> funcOffset, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
-        {
-            if (notifyCollectionChangedEventArgs == null)
-                return;
-
-            string strSelectedId = (treVehicles.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
-
-            TreeNode nodRoot = treVehicles.FindNodeByTag(objVehicle);
-            if (nodRoot == null)
-                return;
-
-            switch (notifyCollectionChangedEventArgs.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    {
-                        int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        if (funcOffset != null)
-                            intNewIndex += funcOffset.Invoke();
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
-                        {
-                            TreeNode objNode = new TreeNode
-                            {
-                                Tag = objLocation,
-                                Text = objLocation.DisplayName(GlobalOptions.Language),
-                                ContextMenuStrip = cmsVehicleLocation
-                            };
-                            treVehicles.Nodes.Insert(intNewIndex, objNode);
-                            intNewIndex += 1;
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    {
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treVehicles.FindNodeByTag(objLocation, false);
-                            if (objNode != null)
-                            {
-                                objNode.Remove();
-                                for (int i = objNode.Nodes.Count - 1; i >= 0; --i)
-                                {
-                                    TreeNode nodVehicle = objNode.Nodes[i];
-                                    nodVehicle.Remove();
-                                    nodRoot.Nodes.Add(nodVehicle);
-                                }
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    {
-                        int intNewItemsIndex = 0;
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treVehicles.FindNodeByTag(objLocation, false);
-                            if (objLocation != null)
-                            {
-                                if (notifyCollectionChangedEventArgs.NewItems[intNewItemsIndex] is Location objNewLocation)
-                                {
-                                    objNode.Tag = objNewLocation;
-                                    objNode.Text = objNewLocation.DisplayName(GlobalOptions.Language);
-                                }
-                                intNewItemsIndex += 1;
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    {
-                        List<Tuple<Location, TreeNode>> lstMoveNodes = new List<Tuple<Location, TreeNode>>();
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treVehicles.FindNodeByTag(objLocation, false);
-                            if (objNode != null)
-                            {
-                                lstMoveNodes.Add(new Tuple<Location, TreeNode>(objLocation, objNode));
-                                objNode.Remove();
-                            }
-                        }
-                        int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        if (funcOffset != null)
-                            intNewIndex += funcOffset.Invoke();
-                        foreach (Location objLocation in notifyCollectionChangedEventArgs.NewItems)
-                        {
-                            Tuple<Location, TreeNode> objLocationTuple = lstMoveNodes.FirstOrDefault(x => x.Item1 == objLocation);
-                            if (objLocationTuple != null)
-                            {
-                                treVehicles.Nodes.Insert(intNewIndex, objLocationTuple.Item2);
-                                intNewIndex += 1;
-                                lstMoveNodes.Remove(objLocationTuple);
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    {
-                        foreach (Location objLocation in objVehicle.Locations)
-                        {
-                            TreeNode objNode = treVehicles.FindNodeByTag(objLocation, false);
-                            if (objNode != null)
-                            {
-                                objNode.Remove();
-                                for (int i = objNode.Nodes.Count - 1; i >= 0; --i)
-                                {
-                                    TreeNode nodVehicle = objNode.Nodes[i];
-                                    nodVehicle.Remove();
-                                    nodRoot.Nodes.Add(nodVehicle);
-                                }
-                            }
-                        }
-                    }
-                    break;
-            }
-
-            treVehicles.SelectedNode = treVehicles.FindNode(strSelectedId);
         }
 
         protected void RefreshVehicleMods(TreeView treVehicles, IHasInternalId objParent, ContextMenuStrip cmsVehicleMod, ContextMenuStrip cmsCyberware, ContextMenuStrip cmsCyberwareGear, ContextMenuStrip cmsVehicleWeapon, ContextMenuStrip cmsVehicleWeaponAccessory, ContextMenuStrip cmsVehicleWeaponAccessoryGear, Func<int> funcOffset, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
@@ -3991,7 +3642,7 @@ namespace Chummer
                             break;
                     }
                 }
-                treFoci.SortCustom(strSelectedId);
+                treFoci.SortCustomAlphabetically(strSelectedId);
             }
             else
             {
@@ -4293,7 +3944,7 @@ namespace Chummer
                     objMartialArt.Techniques.AddTaggedCollectionChanged(treMartialArts, (x, y) => RefreshMartialArtTechniques(treMartialArts, objMartialArt, cmsTechnique, y));
                 }
 
-                treMartialArts.SortCustom(strSelectedId);
+                treMartialArts.SortCustomAlphabetically(strSelectedId);
             }
             else
             {
@@ -4467,7 +4118,7 @@ namespace Chummer
                             AddToTree(objTechnique, false);
                         }
 
-                        treMartialArts.SortCustom(strSelectedId);
+                        treMartialArts.SortCustomAlphabetically(strSelectedId);
                     }
                     break;
             }
@@ -4541,7 +4192,7 @@ namespace Chummer
                 }
 
                 // Sort the list of Custom Improvements in alphabetical order based on their Custom Name within each Group.
-                treImprovements.SortCustom(strSelectedId);
+                treImprovements.SortCustomAlphabetically(strSelectedId);
             }
             else
             {
@@ -4793,141 +4444,6 @@ namespace Chummer
             }
         }
 
-        protected void RefreshCustomImprovementLocations(TreeView treImprovements, ContextMenuStrip cmsImprovementLocation, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
-        {
-            if (notifyCollectionChangedEventArgs == null)
-                return;
-
-            string strSelectedId = (treImprovements.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
-
-            TreeNode nodRoot = treImprovements.FindNode("Node_SelectedImprovements", false);
-
-            switch (notifyCollectionChangedEventArgs.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    {
-                        int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        foreach (string strLocation in notifyCollectionChangedEventArgs.NewItems)
-                        {
-                            TreeNode objLocation = new TreeNode
-                            {
-                                Tag = strLocation,
-                                Text = strLocation,
-                                ContextMenuStrip = cmsImprovementLocation
-                            };
-                            treImprovements.Nodes.Insert(intNewIndex, objLocation);
-                            intNewIndex += 1;
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    {
-                        foreach (string strLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treImprovements.FindNodeByTag(strLocation, false);
-                            if (objNode != null)
-                            {
-                                objNode.Remove();
-                                if (objNode.Nodes.Count > 0)
-                                {
-                                    if (nodRoot == null)
-                                    {
-                                        nodRoot = new TreeNode
-                                        {
-                                            Tag = "Node_SelectedImprovements",
-                                            Text = LanguageManager.GetString("Node_SelectedImprovements", GlobalOptions.Language)
-                                        };
-                                        treImprovements.Nodes.Insert(0, nodRoot);
-                                    }
-                                    for (int i = objNode.Nodes.Count - 1; i >= 0; --i)
-                                    {
-                                        TreeNode nodImprovement = objNode.Nodes[i];
-                                        nodImprovement.Remove();
-                                        nodRoot.Nodes.Add(nodImprovement);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    {
-                        int intNewItemsIndex = 0;
-                        foreach (string strLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objNode = treImprovements.FindNodeByTag(strLocation, false);
-                            if (objNode != null)
-                            {
-                                if (notifyCollectionChangedEventArgs.NewItems[intNewItemsIndex] is string objNewLocation)
-                                {
-                                    objNode.Tag = objNewLocation;
-                                    objNode.Text = objNewLocation;
-                                }
-                                intNewItemsIndex += 1;
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    {
-                        List<Tuple<string, TreeNode>> lstMoveNodes = new List<Tuple<string, TreeNode>>();
-                        foreach (string strLocation in notifyCollectionChangedEventArgs.OldItems)
-                        {
-                            TreeNode objLocation = treImprovements.FindNode(strLocation, false);
-                            if (objLocation != null)
-                            {
-                                lstMoveNodes.Add(new Tuple<string, TreeNode>(strLocation, objLocation));
-                                objLocation.Remove();
-                            }
-                        }
-                        int intNewIndex = notifyCollectionChangedEventArgs.NewStartingIndex;
-                        foreach (string strLocation in notifyCollectionChangedEventArgs.NewItems)
-                        {
-                            Tuple<string, TreeNode> objLocationTuple = lstMoveNodes.FirstOrDefault(x => x.Item1 == strLocation);
-                            if (objLocationTuple != null)
-                            {
-                                treImprovements.Nodes.Insert(intNewIndex, objLocationTuple.Item2);
-                                intNewIndex += 1;
-                                lstMoveNodes.Remove(objLocationTuple);
-                            }
-                        }
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    {
-                        foreach (string strLocation in _objCharacter.ImprovementGroups)
-                        {
-                            TreeNode objLocation = treImprovements.FindNode(strLocation, false);
-                            if (objLocation != null)
-                            {
-                                objLocation.Remove();
-                                if (objLocation.Nodes.Count > 0)
-                                {
-                                    if (nodRoot == null)
-                                    {
-                                        nodRoot = new TreeNode
-                                        {
-                                            Tag = "Node_SelectedImprovements",
-                                            Text = LanguageManager.GetString("Node_SelectedImprovements", GlobalOptions.Language)
-                                        };
-                                        treImprovements.Nodes.Insert(0, nodRoot);
-                                    }
-                                    for (int i = objLocation.Nodes.Count - 1; i >= 0; --i)
-                                    {
-                                        TreeNode nodImprovement = objLocation.Nodes[i];
-                                        nodImprovement.Remove();
-                                        nodRoot.Nodes.Add(nodImprovement);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    break;
-            }
-
-            treImprovements.SelectedNode = treImprovements.FindNode(strSelectedId);
-        }
-
         protected void RefreshLifestyles(TreeView treLifestyles, ContextMenuStrip cmsBasicLifestyle, ContextMenuStrip cmsAdvancedLifestyle, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs = null)
         {
             string strSelectedId = (treLifestyles.SelectedNode?.Tag as IHasInternalId)?.InternalId ?? string.Empty;
@@ -4944,7 +4460,7 @@ namespace Chummer
                         AddToTree(objLifestyle, false);
                     }
 
-                    treLifestyles.SortCustom(strSelectedId);
+                    treLifestyles.SortCustomAlphabetically(strSelectedId);
                 }
             }
             else
@@ -5444,6 +4960,46 @@ namespace Chummer
                         }
                         break;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Moves a tree node to a specified spot in it's parent node collection.
+        /// Will persist between loads if the node's object is an ICanSort
+        /// </summary>
+        /// <param name="objNode">The item to move</param>
+        /// <param name="intNewIndex">The new index in the parent array</param>
+        public void MoveTreeNode(TreeNode objNode, int intNewIndex)
+        {
+            if (objNode == null || !(objNode.Tag is ICanSort))
+                return;
+
+            ICanSort objSortable = objNode.Tag as ICanSort;
+            TreeView treOwningTree = objNode.TreeView;
+            TreeNode objParent = objNode.Parent;
+            TreeNodeCollection lstNodes = objParent?.Nodes ?? treOwningTree.Nodes;
+
+            if (lstNodes != null)
+            {
+                List<ICanSort> lstSorted = lstNodes.Cast<TreeNode>().Select(n => n.Tag).OfType<ICanSort>().ToList();
+
+                // Anything that can't be sorted gets sent to the front of the list, so subtract that number from our new
+                // sorting index and make sure we're still inside the array
+                intNewIndex = Math.Min(lstSorted.Count - 1, Math.Max(0, intNewIndex + lstSorted.Count - lstNodes.Count));
+
+                lstSorted.Remove(objSortable);
+                lstSorted.Insert(intNewIndex, objSortable);
+
+                // Update the sort field of everything in the array. Doing it this way means we only t
+                for (int i = 0; i < lstSorted.Count; ++i)
+                {
+                    lstSorted[i].SortOrder = i;
+                }
+
+                // Sort the actual tree
+                treOwningTree.SortCustomOrder();
+
+                IsDirty = true;
             }
         }
 
@@ -6245,7 +5801,7 @@ namespace Chummer
                 bool blnIsSpirit = objSpirit.EntityType == SpiritType.Spirit;
                 if (!CharacterObject.ConfirmDelete(LanguageManager.GetString(blnIsSpirit ? "Message_DeleteSpirit" : "Message_DeleteSprite", GlobalOptions.Language)))
                     return;
-
+                objSpirit.Fettered = false; // Fettered spirits consume MAG.
                 CharacterObject.Spirits.Remove(objSpirit);
 
                 IsCharacterUpdateRequested = true;
@@ -6407,11 +5963,7 @@ namespace Chummer
 
         protected CharacterOptions CharacterObjectOptions => _objOptions;
 
-        protected ObservableCollection<CharacterAttrib> PrimaryAttributes => _lstPrimaryAttributes;
-
-        protected ObservableCollection<CharacterAttrib> SpecialAttributes => _lstSpecialAttributes;
-
-        protected virtual string FormMode => string.Empty;
+		protected virtual string FormMode => string.Empty;
 
         protected void ShiftTabsOnMouseScroll(object sender, MouseEventArgs e)
         {
@@ -6519,7 +6071,7 @@ namespace Chummer
             if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
             {
                 _objCharacter.FileName = saveFileDialog.FileName;
-                return SaveCharacter(false);
+                return SaveCharacter(false, blnDoCreated);
             }
 
             return false;
